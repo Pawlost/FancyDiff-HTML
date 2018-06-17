@@ -1,5 +1,6 @@
 /target/
 /.settings/
+/.metadata/
 /.idea/
 *.iml
 *.project
