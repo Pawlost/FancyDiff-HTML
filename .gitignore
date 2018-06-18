@@ -2,6 +2,7 @@
 /.settings/
 /.metadata/
 /.idea/
+*.txt
 *.iml
 *.project
 *.classpath

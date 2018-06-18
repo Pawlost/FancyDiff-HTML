@@ -1,33 +1,27 @@
 package redhat.work.pdf.Files;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import redhat.work.pdf.Core.Objects.FilePDF;
 
 public class PDFLoader {
 
-	private FilePDF[] pdfs;
-	private String oldFilePath;
-	private String newFilePath;
+	private String fileName;
 
-	public PDFLoader(String oldFileName, String newFileName) throws IOException {
-		oldFilePath = "/PDFFiles/" + oldFileName + ".pdf";
-		newFilePath = "/PDFFiles/" + newFileName + ".pdf";
+	public PDFLoader(String fileName, String suffix) {
+		this.fileName = fileName + "." + suffix;
 	}
 
-	public String loadFileString() {
-		System.out.println("Vypisuji celý soubor:");
-		String loadedText = "";
-		try (BufferedReader br = new BufferedReader(new FileReader(oldFilePath))) {
-			String s;
-			while ((s = br.readLine()) != null) {
-				loadedText = loadedText + s + "\n";
-				System.out.println(s);
-			}
-		} catch (Exception e) {
-
-			System.err.println("Chyba při četení ze souboru.");
+	public ArrayList<String> loadFileString() throws IOException {
+		ArrayList<String> loadedText = new ArrayList<>();
+		BufferedReader br = new BufferedReader(new FileReader(fileName));
+		String s = br.readLine();
+		while (s != null) {
+			loadedText.add(s);
+            s = br.readLine();
 		}
-		return loadedText;
+		return (ArrayList<String>) loadedText.clone();
 	}
 }

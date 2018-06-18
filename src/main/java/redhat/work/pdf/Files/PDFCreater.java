@@ -8,7 +8,7 @@ public class PDFCreater {
     private String filePath;
 
     public PDFCreater (String fileName){
-        filePath = "/Converted/" + fileName +".pdf";
+        filePath =  fileName +".txt";
     }
 
     public void writeFileString(String[] text) {
