@@ -1,26 +1,35 @@
 package redhat.work.pdf.Files;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import com.itextpdf.html2pdf.HtmlConverter;
+
+import java.io.*;
 
 public class PDFCreater {
 
     private String filePath;
 
     public PDFCreater (String fileName){
-        filePath =  fileName +".txt";
+        filePath =  fileName;
     }
 
-    public void writeFileString(String[] text) {
+    public PDFCreater (String fileName, String path){
+        filePath = path+ fileName;
+    }
+
+    public void writeFile(String text) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true))) {
-            for (String subtext : text) {
-                bw.write(subtext);
+                bw.write(text);
                 bw.newLine();
                 bw.flush();
                 System.out.println("Do souboru bylo připsáno");
-            }
         } catch (Exception e) {
             System.err.println("Do souboru se nepovedlo zapsat.");
         }
+    }
+
+    public void createPDF(String html) throws Exception{
+        OutputStream file = new FileOutputStream(new File(filePath));
+        HtmlConverter.convertToPdf(html, file);
+        file.close();
     }
 }
