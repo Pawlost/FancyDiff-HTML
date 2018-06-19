@@ -21,7 +21,6 @@ public class PDFCreater {
                 bw.write(text);
                 bw.newLine();
                 bw.flush();
-                System.out.println("Do souboru bylo připsáno");
         } catch (Exception e) {
             System.err.println("Do souboru se nepovedlo zapsat.");
         }
