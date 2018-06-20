@@ -6,27 +6,14 @@ import java.io.*;
 
 public class PDFCreater {
 
-    private String filePath;
-
-    public PDFCreater (String fileName){
-        filePath =  fileName;
+    public void writeFile(String filePath, String text) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true));
+        bw.write(text);
+        bw.newLine();
+        bw.flush();
     }
 
-    public PDFCreater (String fileName, String path){
-        filePath = path+ fileName;
-    }
-
-    public void writeFile(String text) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true))) {
-                bw.write(text);
-                bw.newLine();
-                bw.flush();
-        } catch (Exception e) {
-            System.err.println("Do souboru se nepovedlo zapsat.");
-        }
-    }
-
-    public void createPDF(String html) throws Exception{
+    public void createPDF(String filePath, String html) throws IOException {
         OutputStream file = new FileOutputStream(new File(filePath));
         HtmlConverter.convertToPdf(html, file);
         file.close();

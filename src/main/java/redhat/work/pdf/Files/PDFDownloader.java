@@ -5,7 +5,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import redhat.work.pdf.Core.Convert;
-import redhat.work.pdf.Core.Objects.FilePDF;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,25 +12,30 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class PDFDownloader {
-    private PDFLoader pdfLoader;
-    private ArrayList<FilePDF> pdfs;
-    public PDFDownloader(String file, String absolutePath) {
-        if (absolutePath != null) {
-            pdfLoader = new PDFLoader(file, absolutePath);
-        }else{
-            pdfLoader = new PDFLoader(file);
-        }
 
+    private PDFLoader pdfLoader;
+    private String file;
+    private String absolutePath;
+    private String bulk;
+    private String r_id;
+
+    public PDFDownloader(String file, String absolutePath, String bulk, String r_id) {
+        pdfLoader = new PDFLoader();
+        this.file = file;
+        this.r_id = r_id;
+        this.absolutePath = absolutePath;
+        this.bulk = bulk;
         download();
     }
 
-    private void download() {
+    private Document download() {
+        Document rawPdf = null;
         try {
-            ArrayList<String> links = pdfLoader.loadFileString();
+            ArrayList<String> links = pdfLoader.loadFile(file, absolutePath);
             for (String s : links) {
                 try {
                     System.out.println("Downloading file from " + s);
-                    savePDF(Jsoup.connect(s).get());
+                    rawPdf = Jsoup.connect(s).get();
                     System.out.println("File downloaded" + "\n");
                 } catch (IllegalArgumentException e) {
                     System.out.println("This is wrong URL " + s);
@@ -41,24 +45,37 @@ public class PDFDownloader {
             System.out.println("Wrong file");
             e.printStackTrace();
         }
+        return rawPdf;
     }
 
-    private void savePDF(Document document) {
-        Elements pdf = document.select("div.doc-wrapper");
-        String title = document.title();
-        title = title.replaceAll(" ", "_");
-        File path = new File(Convert.TEMPORARY_PATH + title );
-        path.mkdir();
-        PDFCreater pdfCreater = new PDFCreater(path.getPath() + "/" + path.getName() + title +".pdf");
-        try {
-            pdfCreater.createPDF(pdf.html());
-            System.out.println("File temporary saved in " + path.getAbsolutePath() + "/"  + path.getName()  + title +".pdf");
-        } catch (Exception e) {
-            e.printStackTrace();
+    public String savePDF() {
+        Document rawPdf = download();
+        if (rawPdf != null) {
+            Elements pdf = rawPdf.select(Convert.DOC_WRAPPER_ID);
+            String title = rawPdf.title();
+            title = title.replaceAll(" ", "_");
+            File path = new File(absolutePath + bulk);
+            File tempPath = new File(Convert.TEMPORARY_PATH + bulk);
+            tempPath.mkdir();
+            path.mkdir();
+            PDFCreater pdfCreater = new PDFCreater();
+            Elements splitPDF = pdf.select(Convert.DOC_CHAPTER_ID);
+            try {
+                pdfCreater.createPDF(path.getAbsolutePath() + "/" + title + "-<" + r_id + ">.pdf", pdf.html());
+                for (int i = 0; i < splitPDF.size(); i++) {
+                    Element e = splitPDF.get(i);
+                    pdfCreater.createPDF(tempPath.getAbsolutePath() + "/" + e.id() + "-page" + i + ".pdf", e.html());
+                    System.out.println("File splited and temporary saved in " +
+                            tempPath.getAbsolutePath() + "/" + e.id() + "-page" + i + ".pdf");
+                }
+                System.out.println("File saved in " + path.getAbsolutePath() + "/" + path.getName() + title + ".pdf");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return tempPath.getAbsolutePath();
+        }else{
+            System.out.println("Wrong file download");
+            return null;
         }
-    }
-
-    private ArrayList<FilePDF> getPdfs(){
-        return (ArrayList<FilePDF>) pdfs.clone();
     }
 }

@@ -4,16 +4,8 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class PDFLoader {
-	private String fileName;
 
-	public PDFLoader(String fileName) {
-		this.fileName = fileName;
-	}
-    public PDFLoader(String fileName, String absolutePath) {
-        this.fileName = absolutePath + fileName;
-    }
-
-	public ArrayList<String> loadFileString() throws IOException {
+	public ArrayList<String> loadFile(String fileName, String absolutePath) throws IOException {
 		ArrayList<String> loadedText = new ArrayList<>();
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		String s;

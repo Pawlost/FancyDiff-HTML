@@ -1,69 +1,82 @@
 package redhat.work.pdf.Core;
 
+import redhat.work.pdf.Core.Objects.FilePDF;
 import redhat.work.pdf.Files.PDFDownloader;
+import redhat.work.pdf.Files.PDFLoader;
 
-import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 
 public class Convert {
 
     public static final String TEMPORARY_PATH = "./temp/";
-	private static HashMap<String, String> information = new HashMap<>();
-	private static boolean isHelp= false;
+    public static final String DOC_WRAPPER_ID = "div.doc-wrapper";
+    public static final String DOC_CHAPTER_ID = "section.chapter";
+    private static HashMap<String, String> information = new HashMap<>();
 
-	public static void main(String[] args) {
-	    new File(TEMPORARY_PATH).mkdir();
-		try {
-			for (int i = 0; i < args.length; i++) {
-				switch (args[i]) {
-					case "--file":
-						information.put("file", args[i + 1]);
-						break;
-					case "--revision_id":
-						information.put("r_id", args[i + 1]);
-						break;
-					case "--bulk":
-						information.put("bulk", args[i + 1]);
-						break;
+    public static void main(String[] args) {
+        try {
+            if(setArguments(args)){
+                String tempPath = download();
+                load(tempPath);
+            }
+        } catch (NullPointerException e) {
+            System.out.println("Write correct parameters or type --help to see arguments");
+        }
+    }
 
-					case "--path":
-						information.put("path", args[i + 1]);
-						break;
+    private static boolean setArguments(String[] args){
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+                case "--file":
+                    information.put("file", args[i + 1]);
+                    break;
+                case "--revision_id":
+                    information.put("r_id", args[i + 1]);
+                    break;
+                case "--bulk":
+                    information.put("bulk", args[i + 1]);
+                    break;
 
-					case "--help":
-						System.out.println("Place paramaters in correct order <--file paramater --revision_id parameter --bulk parameter>");
-						isHelp = true;
-						break;
-				}
-			}
-			if(!isHelp && information.get("file") != null && information.get("r_id") != null && information.get("bulk") != null){
-                if(information.get("path") != null) {
-                    createDownloader();
-                }else{
-                    System.out.println("You didnt write path. Do you wish create one (y/n)?: ");
-                    Scanner sc = new Scanner(System.in);
-                    if(sc.next().equals("y")){
-                        System.out.println("Write yout path");
-                        information.put("path", sc.next());
-                        createDownloader();
-                    }else{
-                        createDownloader();
-                    }
-                }
+                case "--path":
+                    information.put("path", args[i + 1]);
+                    break;
 
-			} else{
-				System.out.println("Write all neccesary arguments or type help to see correct order");
-			}
-		} catch (NullPointerException e) {
-			System.out.println("Write correct parameters, obligatory parameters are <--file --revision_id --bulk>, optional " +
-                    "are [-- path]");
-		}
-		isHelp = false;
-	}
+                case "--previous_bulk":
+                    information.put("pbulk", args[i + 1]);
+                    break;
 
-	private static void createDownloader()
-    {
-        PDFDownloader pdfDownloader = new PDFDownloader(information.get("file"), information.get("path"));
+                case "--help":
+                    System.out.println("Place paramaters in correct order <--file name.txt --revision_id id --bulk name " +
+                            "--path /path/ --previous_bulk name>, optional parameters []");
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    private static String download(){
+        if (information.get("file") != null && information.get("r_id") != null && information.get("bulk") != null
+                && information.get("path") != null && information.get("pbulk") != null) {
+            PDFDownloader pdfDownloader = new PDFDownloader(information.get("file"), information.get("path"),
+                    information.get("bulk"), information.get("r_id"));
+            return pdfDownloader.savePDF();
+        } else {
+            System.out.println("Write all neccesary arguments or type help to see correct order");
+            return null;
+        }
+    }
+
+    private static ArrayList<FilePDF> load(String path) {
+        PDFLoader pdfLoader = new PDFLoader();
+        return new ArrayList<>();
+    }
+
+    private static void compare() {
+
+    }
+
+    private static void save() {
+
     }
 }
