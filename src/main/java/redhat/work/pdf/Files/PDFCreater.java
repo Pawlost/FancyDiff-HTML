@@ -1,16 +1,13 @@
 package redhat.work.pdf.Files;
 
 import com.itextpdf.html2pdf.HtmlConverter;
-
+import org.apache.commons.io.FileUtils;
 import java.io.*;
 
 public class PDFCreater {
 
     public void writeFile(String filePath, String text) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true));
-        bw.write(text);
-        bw.newLine();
-        bw.flush();
+        FileUtils.writeStringToFile(new File(filePath), text, "UTF-8");
     }
 
     public void createPDF(String filePath, String html) throws IOException {

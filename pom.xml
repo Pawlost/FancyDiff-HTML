@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>PDFConverter</artifactId>
+  <artifactId>pdfconverter</artifactId>
   <version>0.008</version>
 
   <name>PDFConverter</name>
@@ -80,6 +80,7 @@
   </build>
   <description>Project to check PDF files</description>
   <groupId>redhat.work.pdf</groupId>
+
   <dependencies>
   	<dependency>
   		<groupId>org.jsoup</groupId>
@@ -88,14 +89,18 @@
   	</dependency>
       <dependency>
           <groupId>com.itextpdf</groupId>
-          <artifactId>itext7-core</artifactId>
-          <version>7.1.2</version>
-          <type>pom</type>
-      </dependency>
-      <dependency>
-          <groupId>com.itextpdf</groupId>
           <artifactId>html2pdf</artifactId>
           <version>2.0.2</version>
+      </dependency>
+      <dependency>
+          <groupId>com.testautomationguru.pdfutil</groupId>
+          <artifactId>pdf-util</artifactId>
+          <version>0.0.3</version>
+      </dependency>
+      <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-nop</artifactId>
+          <version>1.7.25</version>
       </dependency>
   </dependencies>
 </project>
