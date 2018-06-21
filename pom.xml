@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>pdfconverter</artifactId>
-  <version>0.008</version>
+  <version>0.010</version>
 
   <name>PDFConverter</name>
 

@@ -4,8 +4,7 @@ import org.jsoup.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import redhat.work.pdf.Core.Convert;
+import redhat.work.pdf.Core.NormalConvert;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,14 +17,15 @@ public class PDFDownloader {
     private String tempPath;
     private String file;
     private String r_id;
+    private String absolutePath;
     private PDFCreater pdfCreater;
 
     public PDFDownloader(String file, String absolutePath, String tempID, String r_id) {
 
         pdfLoader = new PDFLoader();
-        tempPath = Convert.TEMPORARY_PATH+"/"+ tempID;
+        tempPath = NormalConvert.TEMPORARY_PATH+"/"+ tempID;
         pdfCreater = new PDFCreater();
-
+        this.absolutePath = absolutePath;
         this.file = absolutePath +"/"+ file;
         this.r_id = r_id;
     }
@@ -46,22 +46,22 @@ public class PDFDownloader {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Wrong file or unfunction internet");
+            System.out.println("Wrong file or unfunctional internet");
             e.printStackTrace();
         }
         return rawPdf;
     }
 
-    public void saveNewPDF(String originPath, String bulk) {
+    public void saveNewPDF(String bulk) {
         Document rawPdf = download();
 
         if (rawPdf != null) {
-            Elements pdf = rawPdf.select(Convert.DOC_WRAPPER_ID);
-            Elements splitPdf = rawPdf.select(Convert.DOC_CHAPTER_ID);
+            Elements pdf = rawPdf.select(NormalConvert.DOC_WRAPPER_ID);
+            Elements splitPdf = rawPdf.select(NormalConvert.DOC_CHAPTER_ID);
             String title = rawPdf.title().replaceAll(" ", "_");
 
             File tempFiles = new File(tempPath+"/newChapter/");
-            File path = new File(originPath +"/"+bulk);
+            File path = new File(absolutePath +"/"+bulk);
 
             tempFiles.mkdirs();
             path.mkdirs();
@@ -79,7 +79,7 @@ public class PDFDownloader {
                             tempFiles.getAbsolutePath()  + "/" + "chapter" + (i +1) + ".pdf \n");
                 }
 
-                System.out.println("File saved in " + path.getAbsolutePath() + "/" + path.getName() + title + ".pdf +\n");
+                System.out.println("File saved in " + path.getAbsolutePath() + "/" + title + ".pdf \n");
 
             } catch (Exception e)
             {
@@ -91,14 +91,15 @@ public class PDFDownloader {
         }
     }
 
-    public void saveOldPDF(String originPath, String previousBulk) {
-        Document oldPDF = pdfLoader.loadPDF(originPath + previousBulk+"/HTML/");
+    public void saveOldPDF(String previousBulk) {
+        Document oldPDF = pdfLoader.loadPDF(absolutePath + previousBulk+"/HTML/");
         File tempFiles = new File(tempPath+"/oldChapter/");
         tempFiles.mkdirs();
 
-        for(int i=0; i < oldPDF.select(Convert.DOC_CHAPTER_ID).size(); i++) {
-            Elements oldChapter = oldPDF.select(Convert.DOC_CHAPTER_ID);
+        for(int i=0; i < oldPDF.select(NormalConvert.DOC_CHAPTER_ID).size(); i++) {
+            Elements oldChapter = oldPDF.select(NormalConvert.DOC_CHAPTER_ID);
             try {
+                System.out.println(tempFiles.getAbsolutePath());
                 pdfCreater.writeFile(tempFiles.getAbsolutePath() + "/" + "chapter" + (i +1) + ".html", oldChapter.get(i).html());
                 System.out.println("File splited and temporary saved in " +
                         tempFiles.getAbsolutePath() + "/" + "chapter" + (i +1) + ".html \n");
