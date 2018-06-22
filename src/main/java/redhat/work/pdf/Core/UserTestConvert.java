@@ -33,7 +33,13 @@ public class UserTestConvert {
                         convert.download(bulk, sc.next(), pdfDownloader);
                         break;
                     case 3:
-                        convert.load();
+                        System.out.println("Write folder with temporary files");
+                        convert.load(sc.next());
+                        break;
+
+                    case 4:
+                        System.out.println("Write folder with temporary files");
+                        convert.load("lol");
                         break;
                 }
 

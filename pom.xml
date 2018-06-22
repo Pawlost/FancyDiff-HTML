@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>pdfconverter</artifactId>
-  <version>0.010</version>
+  <version>0.011</version>
 
   <name>PDFConverter</name>
 
@@ -93,14 +93,14 @@
           <version>2.0.2</version>
       </dependency>
       <dependency>
-          <groupId>com.testautomationguru.pdfutil</groupId>
-          <artifactId>pdf-util</artifactId>
-          <version>0.0.3</version>
-      </dependency>
-      <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-nop</artifactId>
           <version>1.7.25</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-io</artifactId>
+          <version>1.3.2</version>
       </dependency>
   </dependencies>
 </project>
