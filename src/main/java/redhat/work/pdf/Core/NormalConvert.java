@@ -3,13 +3,14 @@ package redhat.work.pdf.Core;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
 import redhat.work.pdf.Files.PDFCreater;
 import redhat.work.pdf.Files.PDFDownloader;
 import redhat.work.pdf.Files.PDFLoader;
 
-import javax.print.Doc;
 import java.io.File;
 import java.io.IOException;
+
 import java.util.HashMap;
 
 public class NormalConvert {
@@ -19,12 +20,13 @@ public class NormalConvert {
     public static final String DOC_CHAPTER_ID = "section.chapter";
     private HashMap<String, String> information = new HashMap<>();
 
-    public NormalConvert() {}
+    public NormalConvert() {
+    }
 
     public NormalConvert(String[] args) {
         try {
             System.out.println("\nStarting program \n");
-            if(checkArguments(args)){
+            if (checkArguments(args)) {
 
                 if (information.get("file") != null && information.get("r_id") != null && information.get("bulk") != null
                         && information.get("path") != null && information.get("p_bulk") != null) {
@@ -37,19 +39,21 @@ public class NormalConvert {
                     HashMap<Integer, Document> oldPDFChapters = load(pdfDownloader.getTemporaryPathOld());
                     HashMap<Integer, Document> newPDFChapters = load(pdfDownloader.getTemporaryPathNew());
 
-                    HashMap<String , HashMap<Integer, Document>>  comparedSources =
-                            hardCompare((HashMap<Integer, Document>) oldPDFChapters.clone(), (HashMap<Integer,
-                            Document>)newPDFChapters.clone(),  pdfDownloader.getTemporaryPath()+"/diffChapters/");
+                    String tempPath = pdfDownloader.getTemporaryPath() + "/diffChapters/";
 
-                    if (checkChapters(comparedSources)){
-                            softCompare(comparedSources.get("old"), comparedSources.get("new"));
+                    HashMap<String, HashMap<Integer, Document>> comparedSources =
+                            hardCompare((HashMap<Integer, Document>) oldPDFChapters.clone(), (HashMap<Integer,
+                                    Document>) newPDFChapters.clone(), tempPath);
+
+                    if (checkChapters(comparedSources, tempPath)) {
+                        softCompare(comparedSources.get("old"), comparedSources.get("new"));
                     }
 
-                    createDiff(pdfDownloader.getTemporaryPath()+"/diffChapters/");
+                    createDiff(tempPath);
                 }
             } else {
-            System.out.println("Write all neccesary arguments or type --help to see correct order");
-        }
+                System.out.println("Write all neccesary arguments or type --help to see correct order");
+            }
         } catch (NullPointerException e) {
             System.out.println("Write correct parameters or type --help to see arguments");
             e.printStackTrace();
@@ -58,7 +62,7 @@ public class NormalConvert {
         }
     }
 
-    public boolean checkArguments(String[] args){
+    public boolean checkArguments(String[] args) {
         System.out.println("Checking arguments \n");
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
@@ -92,7 +96,7 @@ public class NormalConvert {
         return true;
     }
 
-    public void download(String bulk, String previousBulk, PDFDownloader pdfDownloader){
+    public void download(String bulk, String previousBulk, PDFDownloader pdfDownloader) {
         pdfDownloader.saveNewPDF(bulk);
         pdfDownloader.saveOldPDF(previousBulk);
     }
@@ -103,8 +107,8 @@ public class NormalConvert {
     }
 
     public HashMap<String, HashMap<Integer, Document>> hardCompare(HashMap<Integer, Document> oldPDFChapters,
-                                                             HashMap<Integer, Document> newPDFChapters,
-                             String tempFolder) throws IOException {
+                                                                   HashMap<Integer, Document> newPDFChapters,
+                                                                   String tempFolder) throws IOException {
         int size = (oldPDFChapters.size() <= newPDFChapters.size() ? oldPDFChapters.size() : newPDFChapters.size());
         File dir = new File(tempFolder);
         dir.mkdirs();
@@ -117,7 +121,7 @@ public class NormalConvert {
 
             if (htmlNewString.equals(htmlOldString)) {
                 PDFCreater pdfCreater = new PDFCreater();
-                pdfCreater.writeFile(tempFolder + "chapter" + i + ".html", newPDFChapters.get(i).html());
+                pdfCreater.writeFile(tempFolder + "same" + i + ".html", newPDFChapters.get(i).html());
                 oldPDFChapters.remove(i);
                 newPDFChapters.remove(i);
             }
@@ -133,24 +137,47 @@ public class NormalConvert {
         return (HashMap<String, HashMap<Integer, Document>>) returnHashMap.clone();
     }
 
-    public void softCompare( HashMap<Integer, Document> oldPDFChapters,  HashMap<Integer, Document> newPDFChapters) {
+    public void softCompare(HashMap<Integer, Document> oldPDFChapters, HashMap<Integer, Document> newPDFChapters) {
         System.out.print(oldPDFChapters.get(1).text());
 
-        for(int i=1; i<oldPDFChapters.size(); i++){
+        for (int i = 1; i < oldPDFChapters.size(); i++) {
             Document document = Jsoup.parse(oldPDFChapters.get(i).html());
-            for (Element div:document.select("div")) {
+            for (Element div : document.select("div")) {
 
             }
         }
     }
 
-    public void createDiff(String tempPath){
+    public void createDiff(String tempPath) {
         System.out.println("Creating diff from temporary files");
     }
 
 
-    public boolean checkChapters(HashMap<String , HashMap<Integer, Document>>  comparedSources){
+    public boolean checkChapters(HashMap<String, HashMap<Integer, Document>> comparedSources, String tempPath) {
         System.out.println("Checking chapters");
-        return false;
+        PDFCreater pdfCreater = new PDFCreater();
+        HashMap<Integer, Document> oldPDFChapters = comparedSources.get("old");
+        HashMap<Integer, Document> newPDFChapters = comparedSources.get("new");
+        if (oldPDFChapters.size() <= 0) {
+            for (int i : newPDFChapters.keySet()) {
+                try {
+                    pdfCreater.writeFile(tempPath+"new"+i+".html",  newPDFChapters.get(i).html());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return false;
+        } else if (newPDFChapters.size() <= 0) {
+            for (int i : oldPDFChapters.keySet()) {
+                try {
+                    pdfCreater.writeFile(tempPath+"removed"+i+".html", oldPDFChapters.get(i).html());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return false;
+        } else {
+            return true;
+        }
     }
 }
