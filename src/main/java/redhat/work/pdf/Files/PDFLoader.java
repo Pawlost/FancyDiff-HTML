@@ -86,7 +86,7 @@ public class PDFLoader {
 
     public HashMap<Integer, String> showDiffChapterNames(String folderPath){
         HashMap<Integer, String> chapterNames = new HashMap<>();
-        System.out.println("Loading file from location: "+folderPath);
+        System.out.println("Loading names from location: "+folderPath);
         try {
             File folder = new File(folderPath);
             for (File file : Objects.requireNonNull(folder.listFiles())) {
@@ -104,7 +104,7 @@ public class PDFLoader {
             System.out.println("HTML file does not exist or there are no files inside");
             e.printStackTrace();
         }
-        System.out.println("Files pushed to compare\n");
+        System.out.println("Names pushed to compare\n");
         return (HashMap<Integer, String>) chapterNames.clone();
     }
 }
