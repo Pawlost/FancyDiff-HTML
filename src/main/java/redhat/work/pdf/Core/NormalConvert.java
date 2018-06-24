@@ -1,5 +1,6 @@
 package redhat.work.pdf.Core;
 
+import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -36,6 +37,10 @@ public class NormalConvert {
 
                     download(information.get("bulk"), information.get("p_bulk"), pdfDownloader);
 
+                    String originDiffPath = information.get("path") + information.get("bulk") + "/comparison/";
+                    File originDiffFile = new File(originDiffPath);
+                    originDiffFile.mkdirs();
+
                     HashMap<Integer, Document> oldPDFChapters = load(pdfDownloader.getTemporaryPathOld());
                     HashMap<Integer, Document> newPDFChapters = load(pdfDownloader.getTemporaryPathNew());
 
@@ -49,7 +54,10 @@ public class NormalConvert {
                         softCompare(comparedSources.get("old"), comparedSources.get("new"));
                     }
 
-                    createDiff(tempPath);
+                    createDiff(tempPath, originDiffFile.getAbsolutePath() + "/" + pdfDownloader.getNewPDFTitle()
+                            + "-DIFF.pdf", true);
+
+                    deleteTempFiles(pdfDownloader.getTemporaryPath());     
                 }
             } else {
                 System.out.println("Write all neccesary arguments or type --help to see correct order");
@@ -103,7 +111,7 @@ public class NormalConvert {
 
     public HashMap<Integer, Document> load(String tempFolder) {
         PDFLoader pdfLoader = new PDFLoader();
-        return (HashMap<Integer, Document>) pdfLoader.loadTemporaryPDFS(tempFolder).clone();
+        return (HashMap<Integer, Document>) pdfLoader.loadTemporaryChapters(tempFolder).clone();
     }
 
     public HashMap<String, HashMap<Integer, Document>> hardCompare(HashMap<Integer, Document> oldPDFChapters,
@@ -132,8 +140,8 @@ public class NormalConvert {
         returnHashMap.put("new", newPDFChapters);
 
         System.out.println("Hard compare done");
-        System.out.println("Chapters remain to compare: " + oldPDFChapters.size() + " old and " + newPDFChapters.size()
-                + " new \n");
+        System.out.println("Chapters remain to compare: " + oldPDFChapters.size() + " old chapter and " + newPDFChapters.size()
+                + " new chapter \n");
         return (HashMap<String, HashMap<Integer, Document>>) returnHashMap.clone();
     }
 
@@ -148,8 +156,53 @@ public class NormalConvert {
         }
     }
 
-    public void createDiff(String tempPath) {
+    public void createDiff(String tempPath, String originPath, boolean deleteTempFiles) {
         System.out.println("Creating diff from temporary files");
+        PDFLoader pdfLoader = new PDFLoader();
+        PDFCreater pdfCreater = new PDFCreater();
+
+        HashMap<Integer, Document> diffChapter = pdfLoader.loadTemporaryChapters(tempPath);
+        HashMap<Integer, String> diffChapterName = pdfLoader.showDiffChapterNames(tempPath);
+        Document document = null;
+
+        for (int i = 1; i <= diffChapter.size(); i++) {
+            Document doc = diffChapter.get(i);
+            String name = diffChapterName.get(i);
+            if (name.equals("removed") || name.equals("new")) {
+                if (document != null) {
+                    document = Jsoup.parse( document.html() + editDiffChapter(doc, name).html());
+                } else {
+                    document = Jsoup.parse(editDiffChapter(doc, name).html());
+                }
+            } else {
+                if (document != null) {
+                    document = Jsoup.parse(document.html() + doc.html());
+                } else {
+                    document = Jsoup.parse(doc.html());
+                }
+            }
+        }
+
+        try {
+            pdfCreater.createPDF(originPath, document.html());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        System.out.println("Diff completed");
+    }
+
+    private Document editDiffChapter(Document diffChapter, String type) {
+        switch (type) {
+            case "removed":
+                diffChapter.prependElement("<font color='red'>");
+                diffChapter.prependElement("<del>");
+                break;
+            case "new":
+                diffChapter.prependElement("<font color='green'>");
+                break;
+        }
+        return diffChapter.clone();
     }
 
 
@@ -161,16 +214,17 @@ public class NormalConvert {
         if (oldPDFChapters.size() <= 0) {
             for (int i : newPDFChapters.keySet()) {
                 try {
-                    pdfCreater.writeFile(tempPath+"new"+i+".html",  newPDFChapters.get(i).html());
+                    pdfCreater.writeFile(tempPath + "new" + i + ".html", newPDFChapters.get(i).html());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+            System.out.println("All chapters done");
             return false;
         } else if (newPDFChapters.size() <= 0) {
             for (int i : oldPDFChapters.keySet()) {
                 try {
-                    pdfCreater.writeFile(tempPath+"removed"+i+".html", oldPDFChapters.get(i).html());
+                    pdfCreater.writeFile(tempPath + "removed" + i + ".html", oldPDFChapters.get(i).html());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -178,6 +232,16 @@ public class NormalConvert {
             return false;
         } else {
             return true;
+        }
+    }
+
+    public void deleteTempFiles(String tempPath){
+        System.out.println("Deleting temp files");
+        File tempFiles =  new File(tempPath);
+        try {
+            FileUtils.deleteDirectory(tempFiles);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

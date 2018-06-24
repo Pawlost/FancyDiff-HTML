@@ -20,6 +20,7 @@ public class PDFDownloader {
     private String file;
     private String r_id;
     private String originPath;
+    private String newPDFTitle;
     private PDFCreater pdfCreater;
 
     public PDFDownloader(String file, String originPath, String tempID, String r_id) {
@@ -60,7 +61,7 @@ public class PDFDownloader {
         if (rawPdf != null) {
             Elements pdf = rawPdf.select(NormalConvert.DOC_WRAPPER_ID);
 
-            String title = rawPdf.title().replaceAll(" ", "_");
+            newPDFTitle = rawPdf.title().replaceAll(" ", "_");
 
             File tempFiles = new File(tempPath + newChapter);
             File path = new File(originPath + "/" + bulk);
@@ -70,11 +71,11 @@ public class PDFDownloader {
 
             saveChapters(tempFiles.getAbsolutePath(), pdf);
             try {
-                pdfCreater.createPDF(path.getAbsolutePath() + "/" + title + "-<" + r_id + ">.pdf", pdf.html());
-                System.out.println("File saved in " + path.getAbsolutePath() + "/" + title + ".pdf \n");
+                pdfCreater.createPDF(path.getAbsolutePath() + "/" + newPDFTitle + "-<" + r_id + ">.pdf", pdf.html());
+                System.out.println("File saved in " + path.getAbsolutePath() + "/" + newPDFTitle + ".pdf \n");
                 path = new File(path.getAbsolutePath() + "/.htms/");
                 path.mkdirs();
-                pdfCreater.writeFile(path.getAbsolutePath() + "/.htms-" + title + "-<" + r_id + ">.html", pdf.html());
+                pdfCreater.writeFile(path.getAbsolutePath() + "/.htms-" + newPDFTitle + "-<" + r_id + ">.html", pdf.html());
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -87,7 +88,7 @@ public class PDFDownloader {
     }
 
     public void saveOldPDF(String previousBulk) {
-        Document oldPDF = pdfLoader.loadOriginalPDF(originPath + previousBulk + "/.htms/");
+        Document oldPDF = pdfLoader.loadOriginalChapters(originPath + previousBulk + "/.htms/");
         File tempFiles = new File(tempPath + oldChapter);
         tempFiles.mkdirs();
         saveChapters(tempFiles.getAbsolutePath(), oldPDF.getAllElements());
@@ -116,7 +117,12 @@ public class PDFDownloader {
     public String getTemporaryPathNew() {
         return tempPath + newChapter;
     }
+
     public String getTemporaryPath() {
         return tempPath;
+    }
+
+    public String getNewPDFTitle() {
+        return newPDFTitle;
     }
 }

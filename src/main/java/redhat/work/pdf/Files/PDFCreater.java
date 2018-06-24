@@ -7,7 +7,8 @@ import java.io.*;
 public class PDFCreater {
 
     public void writeFile(String filePath, String text) throws IOException {
-        FileUtils.writeStringToFile(new File(filePath), text, "UTF-8");
+        File file = new File(filePath);
+        FileUtils.writeStringToFile(file, text + "\n", "UTF-8");
     }
 
     public void createPDF(String filePath, String html) throws IOException {

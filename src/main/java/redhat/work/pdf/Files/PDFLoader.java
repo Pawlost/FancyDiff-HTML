@@ -22,7 +22,7 @@ public class PDFLoader {
         return (ArrayList<String>) loadedText.clone();
     }
 
-    public Document loadOriginalPDF(String folderPath) {
+    public Document loadOriginalChapters(String folderPath) {
         System.out.println("Loading file from location: "+folderPath);
         try {
             File folder = new File(folderPath);
@@ -53,34 +53,51 @@ public class PDFLoader {
         return null;
     }
 
-    public HashMap<Integer, Document> loadTemporaryPDFS(String folderPath) {
+    public HashMap<Integer, Document> loadTemporaryChapters(String folderPath) {
         HashMap<Integer, Document> clearPdfs = new HashMap<>();
-        ArrayList<File> rawPdfs = new ArrayList<>();
         StringBuilder builder = new StringBuilder();
-        System.out.println("Loading file from location: "+folderPath);
+        System.out.println("Loading file from location: " + folderPath);
         try {
             File folder = new File(folderPath);
             for (File file : Objects.requireNonNull(folder.listFiles())) {
                 if (file != null && !file.isDirectory()) {
-                    rawPdfs.add(file);
-                }
-            }
-
-            for(File file: rawPdfs) {
-                try {
                     for (String s : loadFile(file.getPath())) {
                         builder.append(s);
                     }
                     Matcher m = Pattern.compile("[0-9]+").matcher(file.getName());
-                    if( m.find()) {
+                    if (m.find()) {
                         int pageNumber = Integer.parseInt(m.group());
                         Document document = Jsoup.parse(builder.toString());
                         clearPdfs.put(pageNumber, document);
                         builder.setLength(0);
                     }
-                } catch (IOException e) {
-                    System.out.println("PDF file didnt load");
-                    e.printStackTrace();
+                }
+            }
+        } catch (NullPointerException e) {
+            System.out.println("HTML file does not exist or there are no files inside");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("PDF file didnt load");
+            e.printStackTrace();
+        }
+        System.out.println("Files pushed to compare\n");
+        return (HashMap<Integer, Document>) clearPdfs.clone();
+    }
+
+    public HashMap<Integer, String> showDiffChapterNames(String folderPath){
+        HashMap<Integer, String> chapterNames = new HashMap<>();
+        System.out.println("Loading file from location: "+folderPath);
+        try {
+            File folder = new File(folderPath);
+            for (File file : Objects.requireNonNull(folder.listFiles())) {
+                if (file != null && !file.isDirectory()) {
+
+                    Matcher m = Pattern.compile("[0-9]+").matcher(file.getName());
+
+                    if( m.find()) {
+                        int pageNumber = Integer.parseInt(m.group());
+                        chapterNames.put(pageNumber, file.getName().replace(pageNumber+".html", ""));
+                    }
                 }
             }
         }catch (NullPointerException e){
@@ -88,6 +105,6 @@ public class PDFLoader {
             e.printStackTrace();
         }
         System.out.println("Files pushed to compare\n");
-        return (HashMap<Integer, Document>) clearPdfs.clone();
+        return (HashMap<Integer, String>) chapterNames.clone();
     }
 }
