@@ -175,7 +175,8 @@ public class NormalConvert {
         for (int i = 1; i <= size1; i++) {
             Document oldDiv = oldPDFChapters.get(i);
             Document newDiv = newPDFChapters.get(i);
-            String[] tags = new String[]{"html", "div", "section", "code"};
+            String[] tags = new String[]{"html", "div", "section", "code", "a", "em", "span", "strong", "ol"
+            , "li", "table", "tbody", "tr", "td", "dl", "dt", "dd", "ul"};
             try {
                 for (String tag : tags) {
                     try {
@@ -192,30 +193,66 @@ public class NormalConvert {
                         }
                     }catch (NullPointerException ignore){}
                 }
-                int size2 = (oldDiv.body().getAllElements().size() <= newDiv.body().getAllElements().size() ?
-                        oldDiv.body().getAllElements().size() : newDiv.body().getAllElements().size());
-                for (int text = 1; text < size2; text++) {
-                    Element newDiv2 = newDiv.body().getAllElements().get(text);
-                    Element oldDiv2 = oldDiv.body().getAllElements().get(text);
+               try {
+                    int oldSize = oldDiv.body().getAllElements().size();
+                    int newSize = newDiv.body().getAllElements().size();
+                   int size2 = (oldSize <= newSize? newSize : oldSize);
+                    for (int text = 1; text < size2; text++) {
+                        try {
+                            Element newDiv2 = newDiv.body().getAllElements().get(text);
+                            Element oldDiv2 = oldDiv.body().getAllElements().get(text);
 
-                    if (newDiv2.text().equals(oldDiv2.text())) {
-                        if (difference != null) {
-                            difference = Jsoup.parse(difference.html() + newDiv2.html());
-                        } else {
-                            difference = Jsoup.parse(newDiv2.html());
-                        }
-                    } else {
-                        Document removed = editDiffChapter(Jsoup.parse(oldDiv2.html()), "removed");
-                        Document created = editDiffChapter(Jsoup.parse(newDiv2.html()), "created");
-                        if (difference != null) {
-                            difference = Jsoup.parse(difference.html() +"<p>\n</p>"+ removed.html()  +"<p>\n</p>" + created.html() +"<p>\n</p>");
-                        } else {
-                            difference = Jsoup.parse(removed.html()  +"<p>\n</p>" + created.html()  +"<p>\n</p>");
+                            if (newDiv2.text().equals(oldDiv2.text())) {
+                                if (difference != null) {
+                                    difference = Jsoup.parse(difference.html() + newDiv2.html());
+                                } else {
+                                    difference = Jsoup.parse(newDiv2.html());
+                                }
+                            } else {
+                                Document removed = editDiffChapter(Jsoup.parse(oldDiv2.html()), "removed");
+                                Document created = editDiffChapter(Jsoup.parse(newDiv2.html()), "created");
+                                if (difference != null) {
+                                    difference = Jsoup.parse(difference.html() + "<p>\n</p>" + removed.html() +
+                                            "<p>\n</p>" + created.html() + "<p>\n</p>");
+                                } else {
+                                    difference = Jsoup.parse(removed.html() + "<p>\n</p>" + created.html() + "<p>\n</p>");
+                                }
+                            }
+                        }catch (IndexOutOfBoundsException ignore){
+                            try {
+                                Element newDiv2 = newDiv.body().getAllElements().get(text);
+                                Document created = editDiffChapter(Jsoup.parse(newDiv2.html()), "created");
+                                if (difference != null) {
+                                    difference = Jsoup.parse(difference.html() + "<p>\n</p>" + created.html() + "<p>\n</p>");
+                                } else {
+                                    difference = Jsoup.parse(created.html() + "<p>\n</p>");
+                                }
+
+                            }catch (IndexOutOfBoundsException ignore2){
+                                Element oldDiv2 = oldDiv.body().getAllElements().get(text);
+                                Document removed = editDiffChapter(Jsoup.parse(oldDiv2.html()), "removed");
+                                if (difference != null) {
+                                    difference = Jsoup.parse(difference.html() + "<p>\n</p>" + removed.html() + "<p>\n</p>");
+                                } else {
+                                    difference = Jsoup.parse(removed.html() + "<p>\n</p>");
+                                }
+                            }
                         }
                     }
-                }
+                }catch (NullPointerException ignore) {
+                   try
+                    {
+                        oldDiv.getAllElements();
+                        oldDiv = editDiffChapter(oldDiv, "removed");
+                       difference = Jsoup.parse(oldDiv.html());
+                   } catch (NullPointerException ignore1){
+                       newDiv = editDiffChapter(newDiv, "created");
+                       difference = Jsoup.parse(newDiv.html());
+                   }
+               }
                 pdfCreater.writeFile(tempPath + "/difference" + i + ".html", Objects.requireNonNull(difference).html());
                 difference = null;
+
             }catch (IOException ignore){}
         }
         System.out.println("Soft compare done");

@@ -20,7 +20,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 <modelVersion>4.0.0</modelVersion>
 
 <artifactId>pdfconverter</artifactId>
-<version>0.17</version>
+<version>0.18</version>
 
 <name>PDFConverter</name>
 

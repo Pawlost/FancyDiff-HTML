@@ -39,7 +39,8 @@ public class UserTestConvert {
         do {
             System.out.println("Select one of following commands {\n 1) Continue to normal convert \n" +
                     " 2) Download and create temp folder \n 3) Only load temp files \n 4) Only Hard compare " +
-                    "\n 5) Only Normal compare \n 6) Only Soft compare \n 7) Only Create diff \n 8) Delete temp folder \n");
+                    "\n 5) Only Normal compare \n 6) Only Soft compare \n 7) Only Create diff \n 8) Delete temp folder \n " +
+                    "9) Load file\n 10) Save divaded file");
 
             try {
                 int decision = sc.nextInt();

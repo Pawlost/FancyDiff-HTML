@@ -96,8 +96,6 @@ public class PDFDownloader {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
         } else {
             System.out.println("Wrong file downloads");
         }
