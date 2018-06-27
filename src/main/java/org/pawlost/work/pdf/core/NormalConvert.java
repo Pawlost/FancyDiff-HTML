@@ -1,13 +1,30 @@
-package redhat.work.pdf.Core;
+/*    This file is part of PDFConverter.
+
+    PDFConverter is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PDFConverter is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
+    */
+
+package pawlost.work.pdf.Core;
 
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
-import redhat.work.pdf.Files.PDFCreater;
-import redhat.work.pdf.Files.PDFDownloader;
-import redhat.work.pdf.Files.PDFLoader;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import pawlost.work.pdf.Files.PDFCreater;
+import pawlost.work.pdf.Files.PDFLoader;
+import pawlost.work.pdf.Files.PDFDownloader;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +67,7 @@ public class NormalConvert {
                             hardCompare((HashMap<Integer, Document>) oldPDFChapters.clone(), (HashMap<Integer,
                                     Document>) newPDFChapters.clone(), tempDiffPath);
 
-                    comparedSources =  normalCompare(comparedSources, tempDiffPath);
+                    comparedSources = normalCompare(comparedSources, tempDiffPath);
 
                     if (comparedSources.get("old").size() != 0 && comparedSources.get("new").size() != 0) {
                         softCompare(comparedSources, tempDiffPath);
@@ -148,44 +165,70 @@ public class NormalConvert {
         return (HashMap<String, HashMap<Integer, Document>>) returnHashMap.clone();
     }
 
-    public void softCompare(HashMap<String ,HashMap<Integer, Document>> comparedSources, String tempPath) {
+    public void softCompare(HashMap<String, HashMap<Integer, Document>> comparedSources, String tempPath) {
         System.out.println("Starting soft compare");
         PDFCreater pdfCreater = new PDFCreater();
         Document difference = null;
         HashMap<Integer, Document> oldPDFChapters = comparedSources.get("old");
         HashMap<Integer, Document> newPDFChapters = comparedSources.get("new");
 
-        for (int i = 1; i < oldPDFChapters.size(); i++) {
-            Document oldDivDoc = Jsoup.parse(oldPDFChapters.get(i).html());
-            Document newDivDoc = Jsoup.parse(oldPDFChapters.get(i).html());
-            for (Element oldDiv : oldDivDoc.select("div")) {
-                for (Element newDiv : newDivDoc.select("div")) {
-                    if(newDiv.text().equals(oldDiv.text())){
-                        if(difference != null) {
-                            difference = Jsoup.parse(difference.html() + newDiv.html());
-                        }else {
-                            difference = Jsoup.parse(newDiv.html());
+        int size1 = (oldPDFChapters.size() <= newPDFChapters.size() ? newPDFChapters.size() : oldPDFChapters.size());
+        System.out.println(size1);
+        for (int i = 1; i <= size1; i++) {
+            try {
+
+                Document oldDiv = oldPDFChapters.get(i);
+                Document newDiv = newPDFChapters.get(i);
+
+                String[] tags = new String[]{"html", "div", "section"};
+                for (String tag : tags) {
+                    for (Element elem : oldDiv.getElementsByTag(tag)) {
+                        elem.parent().insertChildren(elem.siblingIndex(),elem.childNodes());
+                        elem.remove();
+                    }
+                    for (Element elem : newDiv.getElementsByTag(tag)) {
+                        elem.parent().insertChildren(elem.siblingIndex(),elem.childNodes());
+                        elem.remove();
+                    }
+                }
+
+                int size2 = (oldDiv.getAllElements().size() <= newDiv.getAllElements().size() ? oldDiv.getAllElements().size()
+                        : newDiv.getAllElements().size());
+
+                for (int text = 1; text < size2; text++) {
+                    Element newDiv2 = newDiv.getAllElements().get(text);
+                    Element oldDiv2 = oldDiv.getAllElements().get(text);
+
+                    if (newDiv2.text().equals(oldDiv2.text())) {
+                        if (difference != null) {
+                            difference = Jsoup.parse(difference.html() + newDiv2.html());
+                        } else {
+                            difference = Jsoup.parse(newDiv2.html());
                         }
-                    }else{
-                        Document removed = editDiffChapter(Jsoup.parse(newDiv.html()), "removed");
-                        Document created = editDiffChapter(Jsoup.parse(newDiv.html()), "created");
-                        if(difference != null) {
+                    } else {
+                        Document removed = editDiffChapter(Jsoup.parse(oldDiv2.html()), "removed");
+                        Document created = editDiffChapter(Jsoup.parse(newDiv2.html()), "created");
+                        if (difference != null) {
                             difference = Jsoup.parse(difference.html() + removed.html() + created.html());
-                        }else {
+                        } else {
                             difference = Jsoup.parse(removed.html() + created.html());
                         }
                     }
                 }
-            }
-            try {
-                pdfCreater.createPDF(tempPath + "difference" + i + ".pdf", Objects.requireNonNull(difference).html());
-            } catch (IOException e) {
+
+                try {
+                    pdfCreater.writeFile(tempPath + "/difference" + i + ".html", Objects.requireNonNull(difference).html());
+                    difference = null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (NullPointerException e) {
                 e.printStackTrace();
             }
         }
-
         System.out.println("Soft compare done");
     }
+
 
     public void createDiff(String tempPath, String originPath) {
         System.out.println("Creating diff from temporary files");
