@@ -14,12 +14,12 @@
     along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
     */
 
-package pawlost.work.pdf.Files;
+package org.pawlost.work.pdf.files;
 
 import org.jsoup.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import pawlost.work.pdf.Core.NormalConvert;
+import org.pawlost.work.pdf.core.NormalConvert;
 
 import java.io.File;
 import java.io.IOException;

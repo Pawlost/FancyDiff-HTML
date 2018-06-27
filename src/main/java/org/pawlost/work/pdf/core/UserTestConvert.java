@@ -14,10 +14,10 @@
     along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
     */
 
-package pawlost.work.pdf.Core;
+package org.pawlost.work.pdf.core;
 
 import org.jsoup.nodes.Document;
-import pawlost.work.pdf.Files.PDFDownloader;
+import org.pawlost.work.pdf.files.PDFDownloader;
 
 import java.util.HashMap;
 import java.util.Scanner;

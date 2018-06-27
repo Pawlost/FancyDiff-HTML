@@ -14,17 +14,16 @@
     along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
     */
 
-package pawlost.work.pdf.Core;
+package org.pawlost.work.pdf.core;
 
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import pawlost.work.pdf.Files.PDFCreater;
-import pawlost.work.pdf.Files.PDFLoader;
-import pawlost.work.pdf.Files.PDFDownloader;
+import org.pawlost.work.pdf.files.PDFCreater;
+import org.pawlost.work.pdf.files.PDFLoader;
+import org.pawlost.work.pdf.files.PDFDownloader;
 
 import java.io.File;
 import java.io.IOException;
@@ -171,33 +170,33 @@ public class NormalConvert {
         Document difference = null;
         HashMap<Integer, Document> oldPDFChapters = comparedSources.get("old");
         HashMap<Integer, Document> newPDFChapters = comparedSources.get("new");
-
         int size1 = (oldPDFChapters.size() <= newPDFChapters.size() ? newPDFChapters.size() : oldPDFChapters.size());
         System.out.println(size1);
         for (int i = 1; i <= size1; i++) {
+            Document oldDiv = oldPDFChapters.get(i);
+            Document newDiv = newPDFChapters.get(i);
+            String[] tags = new String[]{"html", "div", "section", "code"};
             try {
-
-                Document oldDiv = oldPDFChapters.get(i);
-                Document newDiv = newPDFChapters.get(i);
-
-                String[] tags = new String[]{"html", "div", "section"};
                 for (String tag : tags) {
-                    for (Element elem : oldDiv.getElementsByTag(tag)) {
-                        elem.parent().insertChildren(elem.siblingIndex(),elem.childNodes());
-                        elem.remove();
-                    }
-                    for (Element elem : newDiv.getElementsByTag(tag)) {
-                        elem.parent().insertChildren(elem.siblingIndex(),elem.childNodes());
-                        elem.remove();
-                    }
+                    try {
+                        for (Element elem : oldDiv.getElementsByTag(tag)) {
+                            elem.parent().insertChildren(elem.siblingIndex(), elem.childNodes());
+                            elem.remove();
+                        }
+                    }catch (NullPointerException ignore){}
+
+                    try {
+                        for (Element elem : newDiv.getElementsByTag(tag)) {
+                            elem.parent().insertChildren(elem.siblingIndex(), elem.childNodes());
+                            elem.remove();
+                        }
+                    }catch (NullPointerException ignore){}
                 }
-
-                int size2 = (oldDiv.getAllElements().size() <= newDiv.getAllElements().size() ? oldDiv.getAllElements().size()
-                        : newDiv.getAllElements().size());
-
+                int size2 = (oldDiv.body().getAllElements().size() <= newDiv.body().getAllElements().size() ?
+                        oldDiv.body().getAllElements().size() : newDiv.body().getAllElements().size());
                 for (int text = 1; text < size2; text++) {
-                    Element newDiv2 = newDiv.getAllElements().get(text);
-                    Element oldDiv2 = oldDiv.getAllElements().get(text);
+                    Element newDiv2 = newDiv.body().getAllElements().get(text);
+                    Element oldDiv2 = oldDiv.body().getAllElements().get(text);
 
                     if (newDiv2.text().equals(oldDiv2.text())) {
                         if (difference != null) {
@@ -209,26 +208,18 @@ public class NormalConvert {
                         Document removed = editDiffChapter(Jsoup.parse(oldDiv2.html()), "removed");
                         Document created = editDiffChapter(Jsoup.parse(newDiv2.html()), "created");
                         if (difference != null) {
-                            difference = Jsoup.parse(difference.html() + removed.html() + created.html());
+                            difference = Jsoup.parse(difference.html() +"<p>\n</p>"+ removed.html()  +"<p>\n</p>" + created.html() +"<p>\n</p>");
                         } else {
-                            difference = Jsoup.parse(removed.html() + created.html());
+                            difference = Jsoup.parse(removed.html()  +"<p>\n</p>" + created.html()  +"<p>\n</p>");
                         }
                     }
                 }
-
-                try {
-                    pdfCreater.writeFile(tempPath + "/difference" + i + ".html", Objects.requireNonNull(difference).html());
-                    difference = null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
+                pdfCreater.writeFile(tempPath + "/difference" + i + ".html", Objects.requireNonNull(difference).html());
+                difference = null;
+            }catch (IOException ignore){}
         }
         System.out.println("Soft compare done");
     }
-
 
     public void createDiff(String tempPath, String originPath) {
         System.out.println("Creating diff from temporary files");
@@ -256,24 +247,30 @@ public class NormalConvert {
                 }
             }
         }
-
         try {
             pdfCreater.createPDF(originPath, Objects.requireNonNull(document).html());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
         System.out.println("Diff completed");
     }
 
     private Document editDiffChapter(Document diffChapter, String type) {
         switch (type) {
             case "removed":
-                diffChapter.prependElement("<font color='red'>");
-                diffChapter.prependElement("<del>");
+                for(Element edited:diffChapter.select("body")) {
+                    String html = edited.html();
+                    edited.remove();
+                    diffChapter.append("<font color='red'><del>"+html+"</del></font>");
+                }
                 break;
+
             case "created":
-                diffChapter.prependElement("<font color='green'>");
+                for(Element edited:diffChapter.select("body")) {
+                    String html = edited.html();
+                    edited.remove();
+                    diffChapter.append("<font color='green'>"+html+"</font>");
+                }
                 break;
         }
         return diffChapter.clone();

@@ -1,4 +1,4 @@
-package pawlost.work.pdf.Files;
+package org.pawlost.work.pdf.files;
 
 /*    This file is part of PDFConverter.
 

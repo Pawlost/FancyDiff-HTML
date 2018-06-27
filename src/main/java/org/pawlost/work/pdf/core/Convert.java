@@ -13,7 +13,7 @@
     You should have received a copy of the GNU General Public License
     along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
     */
-package pawlost.work.pdf.Core;
+package org.pawlost.work.pdf.core;
 
 public class Convert {
 

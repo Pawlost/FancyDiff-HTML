@@ -14,7 +14,7 @@
     along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
     */
 
-package pawlost.work.pdf.Files;
+package org.pawlost.work.pdf.files;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -96,7 +96,7 @@ public class PDFLoader {
             System.out.println("PDF file didnt load");
             e.printStackTrace();
         }
-        System.out.println("Files pushed to compare\n");
+        System.out.println("files pushed to compare\n");
         return (HashMap<Integer, Document>) clearPdfs.clone();
     }
 

@@ -1,2 +1,2 @@
 Manifest-Version: 1.0
-Main-Class: redhat.work.pdf.Core.Convert
+Main-Class: org.pawlost.work.pdf.core.Convert
