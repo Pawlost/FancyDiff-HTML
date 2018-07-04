@@ -16,8 +16,10 @@
 
 package org.pawlost.work.pdf.core;
 
+import javafx.scene.layout.BackgroundRepeat;
 import org.jsoup.nodes.Document;
 import org.pawlost.work.pdf.files.PDFDownloader;
+import org.pawlost.work.pdf.files.PDFLoader;
 
 import java.util.HashMap;
 import java.util.Scanner;
@@ -26,6 +28,7 @@ public class UserTestConvert {
 
     public UserTestConvert(String[] args) {
 
+        Document document = null;
         Scanner sc = new Scanner(System.in);
         NormalConvert convert = new NormalConvert();
 
@@ -39,8 +42,7 @@ public class UserTestConvert {
         do {
             System.out.println("Select one of following commands {\n 1) Continue to normal convert \n" +
                     " 2) Download and create temp folder \n 3) Only load temp files \n 4) Only Hard compare " +
-                    "\n 5) Only Normal compare \n 6) Only Soft compare \n 7) Only Create diff \n 8) Delete temp folder \n " +
-                    "9) Load file\n 10) Save divaded file");
+                    "\n 5) Only Normal compare \n 6) Only Soft compare \n 7) Only Create diff \n 8) Delete temp folder \n ");
 
             try {
                 int decision = sc.nextInt();
@@ -69,11 +71,11 @@ public class UserTestConvert {
                         if (pdfDownloader != null) {
                             oldPDFChapters = convert.load(pdfDownloader.getTemporaryPathOld());
                             newPDFChapters = convert.load(pdfDownloader.getTemporaryPathNew());
-                        }else {
+                        } else {
                             System.out.println("Write path to temp files");
                             tempPath = sc.next();
-                            oldPDFChapters = convert.load(tempPath+"oldChapters/");
-                            newPDFChapters = convert.load(tempPath+"newChapters/");
+                            oldPDFChapters = convert.load(tempPath + "oldChapters/");
+                            newPDFChapters = convert.load(tempPath + "newChapters/");
                         }
                         break;
 
@@ -81,7 +83,7 @@ public class UserTestConvert {
                         System.out.println("Only Hard compare");
                         if (oldPDFChapters != null && newPDFChapters != null) {
                             convert.hardCompare(newPDFChapters, oldPDFChapters, tempPath);
-                        }else{
+                        } else {
                             System.out.println("You need to load");
                         }
                         break;
@@ -94,7 +96,7 @@ public class UserTestConvert {
                             chapters.put("old", oldPDFChapters);
                             chapters.put("new", newPDFChapters);
                             convert.normalCompare(chapters, tempPath);
-                        }else{
+                        } else {
                             System.out.println("You need to load");
                         }
                         break;
@@ -107,14 +109,14 @@ public class UserTestConvert {
                             chapters.put("old", oldPDFChapters);
                             chapters.put("new", newPDFChapters);
                             convert.softCompare(chapters, tempPath);
-                        }else{
+                        } else {
                             System.out.println("You need to load");
                         }
                         break;
 
                     case 7:
                         System.out.println("Only Create diff");
-                        if(tempPath == null) {
+                        if (tempPath == null) {
                             System.out.println("Write path with diff chapters");
                             tempPath = sc.next();
                         }
@@ -124,7 +126,7 @@ public class UserTestConvert {
 
                     case 8:
                         System.out.println("Delete temp folder");
-                        if(tempPath == null) {
+                        if (tempPath == null) {
                             System.out.println("Write path to temp folder");
                             tempPath = sc.next();
                         }

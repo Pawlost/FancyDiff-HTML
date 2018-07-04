@@ -176,7 +176,7 @@ public class NormalConvert {
             Document oldDiv = oldPDFChapters.get(i);
             Document newDiv = newPDFChapters.get(i);
             String[] tags = new String[]{"html", "div", "section", "code", "a", "em", "span", "strong", "ol"
-            , "li", "table", "tbody", "tr", "td", "dl", "dt", "dd", "ul"};
+                    , "li", "table", "tbody", "tr", "td", "dl", "dt", "dd", "ul"};
             try {
                 for (String tag : tags) {
                     try {
@@ -184,27 +184,29 @@ public class NormalConvert {
                             elem.parent().insertChildren(elem.siblingIndex(), elem.childNodes());
                             elem.remove();
                         }
-                    }catch (NullPointerException ignore){}
+                    } catch (NullPointerException ignore) {
+                    }
 
                     try {
                         for (Element elem : newDiv.getElementsByTag(tag)) {
                             elem.parent().insertChildren(elem.siblingIndex(), elem.childNodes());
                             elem.remove();
                         }
-                    }catch (NullPointerException ignore){}
+                    } catch (NullPointerException ignore) {
+                    }
                 }
-               try {
+                try {
                     int oldSize = oldDiv.body().getAllElements().size();
                     int newSize = newDiv.body().getAllElements().size();
-                   int size2 = (oldSize <= newSize? newSize : oldSize);
+                    int size2 = (oldSize <= newSize ? newSize : oldSize);
                     for (int text = 1; text < size2; text++) {
                         try {
                             Element newDiv2 = newDiv.body().getAllElements().get(text);
                             Element oldDiv2 = oldDiv.body().getAllElements().get(text);
 
-                            if (newDiv2.text().equals(oldDiv2.text())) {
+                            if (newDiv2.html().equals(oldDiv2.html())) {
                                 if (difference != null) {
-                                    difference = Jsoup.parse(difference.html() + newDiv2.html());
+                                    difference = Jsoup.parse(difference.html() + "<p>\n</p>" + newDiv2.html()+ "<p>\n</p>");
                                 } else {
                                     difference = Jsoup.parse(newDiv2.html());
                                 }
@@ -218,7 +220,7 @@ public class NormalConvert {
                                     difference = Jsoup.parse(removed.html() + "<p>\n</p>" + created.html() + "<p>\n</p>");
                                 }
                             }
-                        }catch (IndexOutOfBoundsException ignore){
+                        } catch (IndexOutOfBoundsException ignore) {
                             try {
                                 Element newDiv2 = newDiv.body().getAllElements().get(text);
                                 Document created = editDiffChapter(Jsoup.parse(newDiv2.html()), "created");
@@ -227,8 +229,7 @@ public class NormalConvert {
                                 } else {
                                     difference = Jsoup.parse(created.html() + "<p>\n</p>");
                                 }
-
-                            }catch (IndexOutOfBoundsException ignore2){
+                            } catch (IndexOutOfBoundsException ignore2) {
                                 Element oldDiv2 = oldDiv.body().getAllElements().get(text);
                                 Document removed = editDiffChapter(Jsoup.parse(oldDiv2.html()), "removed");
                                 if (difference != null) {
@@ -239,21 +240,25 @@ public class NormalConvert {
                             }
                         }
                     }
-                }catch (NullPointerException ignore) {
-                   try
-                    {
+                } catch (NullPointerException ignore) {
+                    try {
                         oldDiv.getAllElements();
                         oldDiv = editDiffChapter(oldDiv, "removed");
-                       difference = Jsoup.parse(oldDiv.html());
-                   } catch (NullPointerException ignore1){
-                       newDiv = editDiffChapter(newDiv, "created");
-                       difference = Jsoup.parse(newDiv.html());
-                   }
-               }
-                pdfCreater.writeFile(tempPath + "/difference" + i + ".html", Objects.requireNonNull(difference).html());
-                difference = null;
+                        difference = Jsoup.parse(oldDiv.html());
+                    } catch (NullPointerException ignore1) {
+                        if(newDiv != null) {
+                            newDiv = editDiffChapter(newDiv, "created");
+                            difference = Jsoup.parse(newDiv.html());
+                        }
+                    }
+                }
+                if(difference != null) {
+                    pdfCreater.writeFile(tempPath + "/difference" + i + ".html", difference.html());
+                    difference = null;
+                }
 
-            }catch (IOException ignore){}
+            } catch (IOException ignore) {
+            }
         }
         System.out.println("Soft compare done");
     }
@@ -272,7 +277,7 @@ public class NormalConvert {
             String name = diffChapterName.get(i);
             if (name.equals("removed") || name.equals("created")) {
                 if (document != null) {
-                    document = Jsoup.parse( document.html() + editDiffChapter(doc, name).html());
+                    document = Jsoup.parse(document.html() + editDiffChapter(doc, name).html());
                 } else {
                     document = Jsoup.parse(editDiffChapter(doc, name).html());
                 }
@@ -295,18 +300,18 @@ public class NormalConvert {
     private Document editDiffChapter(Document diffChapter, String type) {
         switch (type) {
             case "removed":
-                for(Element edited:diffChapter.select("body")) {
+                for (Element edited : diffChapter.select("body")) {
                     String html = edited.html();
                     edited.remove();
-                    diffChapter.append("<font color='red'><del>"+html+"</del></font>");
+                    diffChapter.append("<font color='red'><del>" + html + "</del></font>");
                 }
                 break;
 
             case "created":
-                for(Element edited:diffChapter.select("body")) {
+                for (Element edited : diffChapter.select("body")) {
                     String html = edited.html();
                     edited.remove();
-                    diffChapter.append("<font color='green'>"+html+"</font>");
+                    diffChapter.append("<font color='green'>" + html + "</font>");
                 }
                 break;
         }
@@ -323,7 +328,7 @@ public class NormalConvert {
         if (oldPDFChapters.size() < newPDFChapters.size()) {
             ArrayList<Integer> keys = (ArrayList<Integer>) new ArrayList(newPDFChapters.keySet());
             for (int i : keys) {
-                if(i > oldPDFChapters.size()) {
+                if (i > oldPDFChapters.size()) {
                     try {
                         pdfCreater.writeFile(tempPath + "created" + i + ".html", newPDFChapters.get(i).html());
                         newPDFChapters.remove(i);
@@ -332,10 +337,10 @@ public class NormalConvert {
                     }
                 }
             }
-        } else {
+        } else if (oldPDFChapters.size() > newPDFChapters.size()) {
             ArrayList<Integer> keys = (ArrayList<Integer>) new ArrayList(oldPDFChapters.keySet());
             for (int i : keys) {
-                if(i > newPDFChapters.size()) {
+                if (i > newPDFChapters.size()) {
                     try {
                         pdfCreater.writeFile(tempPath + "removed" + i + ".html", oldPDFChapters.get(i).html());
                         oldPDFChapters.remove(i);
@@ -355,9 +360,9 @@ public class NormalConvert {
         return comparedSources;
     }
 
-    public void deleteFile(String tempPath){
+    public void deleteFile(String tempPath) {
         System.out.println("Deleting temp files");
-        File tempFiles =  new File(tempPath);
+        File tempFiles = new File(tempPath);
         try {
             FileUtils.deleteDirectory(tempFiles);
         } catch (IOException e) {

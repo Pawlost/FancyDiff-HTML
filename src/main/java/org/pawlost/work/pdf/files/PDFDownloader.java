@@ -109,7 +109,7 @@ public class PDFDownloader {
 
     }
 
-    private void saveChapters(String absolutePath, Elements rawPdf) {
+    public void saveChapters(String absolutePath, Elements rawPdf) {
         Elements pdf= rawPdf.select(NormalConvert.DOC_CHAPTER_ID);
         for (int i = 0; i < pdf.size(); i++) {
             try {
