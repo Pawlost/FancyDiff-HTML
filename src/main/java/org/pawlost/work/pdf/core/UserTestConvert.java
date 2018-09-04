@@ -16,10 +16,8 @@
 
 package org.pawlost.work.pdf.core;
 
-import javafx.scene.layout.BackgroundRepeat;
 import org.jsoup.nodes.Document;
-import org.pawlost.work.pdf.files.PDFDownloader;
-import org.pawlost.work.pdf.files.PDFLoader;
+import org.pawlost.work.pdf.files.HTMLDownloader;
 
 import java.util.HashMap;
 import java.util.Scanner;
@@ -28,14 +26,13 @@ public class UserTestConvert {
 
     public UserTestConvert(String[] args) {
 
-        Document document = null;
         Scanner sc = new Scanner(System.in);
         NormalConvert convert = new NormalConvert();
 
         HashMap<Integer, Document> oldPDFChapters = null;
         HashMap<Integer, Document> newPDFChapters = null;
         String tempPath = null;
-        PDFDownloader pdfDownloader = null;
+        HTMLDownloader HTMLDownloader = null;
 
         System.out.println("Running test mode \n");
 
@@ -58,19 +55,21 @@ public class UserTestConvert {
                         System.out.println("Write name of file with links");
                         String file = sc.next();
                         System.out.println("Write path to files with pdfs");
-                        pdfDownloader = new PDFDownloader(file, sc.next(), "test", "404");
+                        HTMLDownloader = new HTMLDownloader(file, sc.next(), "test", "404");
 
                         System.out.println("Write name of new bulk");
                         String bulk = sc.next();
                         System.out.println("Write name of previous bulk");
-                        convert.download(bulk, sc.next(), pdfDownloader);
+
+                        convert.setHTMLDownloader(HTMLDownloader);
+                        convert.download(bulk, sc.next());
                         break;
 
                     case 3:
                         System.out.println("Load temp files");
-                        if (pdfDownloader != null) {
-                            oldPDFChapters = convert.load(pdfDownloader.getTemporaryPathOld());
-                            newPDFChapters = convert.load(pdfDownloader.getTemporaryPathNew());
+                        if (HTMLDownloader != null) {
+                            oldPDFChapters = convert.load(HTMLDownloader.getTemporaryPathOld());
+                            newPDFChapters = convert.load(HTMLDownloader.getTemporaryPathNew());
                         } else {
                             System.out.println("Write path to temp files");
                             tempPath = sc.next();

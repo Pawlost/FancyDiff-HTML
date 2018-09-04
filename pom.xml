@@ -20,7 +20,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 <modelVersion>4.0.0</modelVersion>
 
 <artifactId>fancyHtml</artifactId>
-<version>0.20</version>
+<version>0.21</version>
 
 <name>FancyDiff-HTML</name>
 
@@ -102,11 +102,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   		<artifactId>jsoup</artifactId>
   		<version>1.11.3</version>
   	</dependency>
-      <dependency>
-          <groupId>com.itextpdf</groupId>
-          <artifactId>html2pdf</artifactId>
-          <version>2.0.2</version>
-      </dependency>
       <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-nop</artifactId>

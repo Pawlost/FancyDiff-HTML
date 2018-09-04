@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PDFLoader {
+public class HTMLLoader {
 
     public ArrayList<String> loadFile(String fileName) throws IOException {
         ArrayList<String> loadedText = new ArrayList<>();
