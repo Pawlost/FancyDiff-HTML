@@ -19,10 +19,10 @@ along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 <modelVersion>4.0.0</modelVersion>
 
-<artifactId>pdfconverter</artifactId>
-<version>0.18</version>
+<artifactId>fancyHtml</artifactId>
+<version>0.20</version>
 
-<name>PDFConverter</name>
+<name>FancyDiff-HTML</name>
 
 <!-- FIXME change it to the project's website -->
 

@@ -2,6 +2,7 @@
 /.settings/
 /.metadata/
 /.idea/
+/.secret/
 /temp/
 *.iml
 *.project
