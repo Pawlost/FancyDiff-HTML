@@ -14,10 +14,10 @@
     along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
     */
 
-package org.pawlost.work.pdf.core;
+package org.pawlost.work.html.core;
 
 import org.jsoup.nodes.Document;
-import org.pawlost.work.pdf.files.HTMLDownloader;
+import org.pawlost.work.html.IO.Connector;
 
 import java.util.HashMap;
 import java.util.Scanner;
@@ -32,13 +32,13 @@ public class UserTestConvert {
         HashMap<Integer, Document> oldPDFChapters = null;
         HashMap<Integer, Document> newPDFChapters = null;
         String tempPath = null;
-        HTMLDownloader HTMLDownloader = null;
+        Connector Connector = null;
 
         System.out.println("Running test mode \n");
 
         do {
             System.out.println("Select one of following commands {\n 1) Continue to normal convert \n" +
-                    " 2) Download and create temp folder \n 3) Only load temp files \n 4) Only Hard compare " +
+                    " 2) Download and create temp folder \n 3) Only load temp IO \n 4) Only Hard compare " +
                     "\n 5) Only Normal compare \n 6) Only Soft compare \n 7) Only Create diff \n 8) Delete temp folder \n ");
 
             try {
@@ -54,24 +54,24 @@ public class UserTestConvert {
                         System.out.println("Download and create temp folder");
                         System.out.println("Write name of file with links");
                         String file = sc.next();
-                        System.out.println("Write path to files with pdfs");
-                        HTMLDownloader = new HTMLDownloader(file, sc.next(), "test", "404");
+                        System.out.println("Write path to IO with pdfs");
+                        Connector = new Connector(file, sc.next(), "test", "404");
 
                         System.out.println("Write name of new bulk");
                         String bulk = sc.next();
                         System.out.println("Write name of previous bulk");
 
-                        convert.setHTMLDownloader(HTMLDownloader);
+                        convert.setConnector(Connector);
                         convert.download(bulk, sc.next());
                         break;
 
                     case 3:
-                        System.out.println("Load temp files");
-                        if (HTMLDownloader != null) {
-                            oldPDFChapters = convert.load(HTMLDownloader.getTemporaryPathOld());
-                            newPDFChapters = convert.load(HTMLDownloader.getTemporaryPathNew());
+                        System.out.println("Load temp IO");
+                        if (Connector != null) {
+                            oldPDFChapters = convert.load(Connector.getTemporaryPathOld());
+                            newPDFChapters = convert.load(Connector.getTemporaryPathNew());
                         } else {
-                            System.out.println("Write path to temp files");
+                            System.out.println("Write path to temp IO");
                             tempPath = sc.next();
                             oldPDFChapters = convert.load(tempPath + "oldChapters/");
                             newPDFChapters = convert.load(tempPath + "newChapters/");
@@ -89,7 +89,7 @@ public class UserTestConvert {
 
                     case 5:
                         System.out.println("Only Normal compare");
-                        System.out.println("Write temporary files with diff chapters");
+                        System.out.println("Write temporary IO with diff chapters");
                         if (oldPDFChapters != null && newPDFChapters != null) {
                             HashMap<String, HashMap<Integer, Document>> chapters = new HashMap<>();
                             chapters.put("old", oldPDFChapters);
@@ -102,7 +102,7 @@ public class UserTestConvert {
 
                     case 6:
                         System.out.println("Only Soft compare");
-                        System.out.println("Write temporary files with diff chapters");
+                        System.out.println("Write temporary IO with diff chapters");
                         if (oldPDFChapters != null && newPDFChapters != null) {
                             HashMap<String, HashMap<Integer, Document>> chapters = new HashMap<>();
                             chapters.put("old", oldPDFChapters);
@@ -119,7 +119,7 @@ public class UserTestConvert {
                             System.out.println("Write path with diff chapters");
                             tempPath = sc.next();
                         }
-                        System.out.println("Write folder to save diff pdf");
+                        System.out.println("Write folder to save diff html");
                         convert.createDiff(tempPath, sc.next());
                         break;
 

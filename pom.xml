@@ -35,7 +35,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
   <build>
       <plugins>
-
           <plugin>
               <artifactId>maven-dependency-plugin</artifactId>
               <executions>
@@ -59,7 +58,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
                   <archive>
                     <manifest>
                         <addClasspath>true</addClasspath>
-                        <mainClass>org.pawlost.work.pdf.core.Convert</mainClass>
+                        <mainClass>org.pawlost.work.html.core.Convert</mainClass>
               </manifest>
             </archive>
           </configuration>
@@ -93,8 +92,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         </plugin>
       </plugins>
   </build>
+
   <description>Project to check PDF files</description>
-  <groupId>redhat.work.pdf</groupId>
+  <groupId>redhat.work.html</groupId>
 
   <dependencies>
   	<dependency>

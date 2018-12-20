@@ -14,15 +14,15 @@
     along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
     */
 
-package org.pawlost.work.pdf.core;
+package org.pawlost.work.html.core;
 
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import org.jsoup.nodes.Element;
-import org.pawlost.work.pdf.files.HTMLLoader;
-import org.pawlost.work.pdf.files.HTMLDownloader;
+import org.pawlost.work.html.IO.Loader;
+import org.pawlost.work.html.IO.Connector;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class NormalConvert {
     public static final String DOC_WRAPPER_ID = "div.doc-wrapper";
     public static final String DOC_CHAPTER_ID = "section.chapter";
     private HashMap<String, String> information = new HashMap<>();
-    private HTMLDownloader HTMLDownloader;
+    private Connector Connector;
     private boolean canDestroy = true;
 
     public NormalConvert() {
@@ -49,7 +49,7 @@ public class NormalConvert {
                 if (information.get("file") != null && information.get("r_id") != null && information.get("bulk") != null
                         && information.get("path") != null && information.get("p_bulk") != null) {
 
-                    HTMLDownloader = new HTMLDownloader(information.get("file"), information.get("path"),
+                    Connector = new Connector(information.get("file"), information.get("path"),
                             information.get("bulk"), information.get("r_id"));
 
                     download(information.get("bulk"), information.get("p_bulk"));
@@ -58,10 +58,10 @@ public class NormalConvert {
                     File originDiffFile = new File(originDiffPath);
                     originDiffFile.mkdirs();
 
-                    HashMap<Integer, Document> oldPDFChapters = load(HTMLDownloader.getTemporaryPathOld());
-                    HashMap<Integer, Document> newPDFChapters = load(HTMLDownloader.getTemporaryPathNew());
+                    HashMap<Integer, Document> oldPDFChapters = load(Connector.getTemporaryPathOld());
+                    HashMap<Integer, Document> newPDFChapters = load(Connector.getTemporaryPathNew());
 
-                    String tempDiffPath = HTMLDownloader.getTemporaryPath() + "/diffChapters/";
+                    String tempDiffPath = Connector.getTemporaryPath() + "/diffChapters/";
 
                     HashMap<String, HashMap<Integer, Document>> comparedSources =
                             hardCompare((HashMap<Integer, Document>) oldPDFChapters.clone(), (HashMap<Integer,
@@ -73,10 +73,10 @@ public class NormalConvert {
                         softCompare(comparedSources, tempDiffPath);
                     }
 
-                    createDiff(tempDiffPath, originDiffFile.getAbsolutePath() + "/" + HTMLDownloader.getChapterTitle()
+                    createDiff(tempDiffPath, originDiffFile.getAbsolutePath() + "/" + Connector.getChapterTitle()
                             + "-DIFF.html");
 
-                    deleteFile(HTMLDownloader.getTemporaryPath());
+                    deleteFile(Connector.getTemporaryPath());
                 }
             } else {
                 System.out.println("Write all neccesary arguments or type --help to see correct order");
@@ -129,13 +129,13 @@ public class NormalConvert {
     }
 
     public void download(String bulk, String previousBulk) throws IOException {
-        HTMLDownloader.newTemp(bulk);
-        HTMLDownloader.oldTemp(previousBulk);
+        Connector.newTemp(bulk);
+        Connector.oldTemp(previousBulk);
     }
 
     public HashMap<Integer, Document> load(String tempFolder) {
-        HTMLLoader HTMLLoader = new HTMLLoader();
-        return (HashMap<Integer, Document>) HTMLLoader.loadTemporaryChapters(tempFolder).clone();
+        Loader Loader = new Loader();
+        return (HashMap<Integer, Document>) Loader.loadTemporaryChapters(tempFolder).clone();
     }
 
     //hard compare, compares whole pages
@@ -154,7 +154,7 @@ public class NormalConvert {
             htmlOldString = htmlOldString.replace(" ", "");
 
             if (htmlNewString.equals(htmlOldString)) {
-                HTMLDownloader.createFile(tempFolder + "same" + i + ".html", newPDFChapters.get(i).html());
+                Connector.createFile(tempFolder + "same" + i + ".html", newPDFChapters.get(i).html());
                 oldPDFChapters.remove(i);
                 newPDFChapters.remove(i);
             }
@@ -172,17 +172,19 @@ public class NormalConvert {
 
     //argorithm itself, frontend of resources
     public void softCompare(HashMap<String, HashMap<Integer, Document>> comparedSources, String tempPath) {
-       System.out.println("Starting soft compare");
+        System.out.println("Starting soft compare");
 
         Document difference = null;
         HashMap<Integer, Document> oldPDFChapters = comparedSources.get("old");
         HashMap<Integer, Document> newPDFChapters = comparedSources.get("new");
         int size1 = (oldPDFChapters.size() <= newPDFChapters.size() ? newPDFChapters.size() : oldPDFChapters.size());
         System.out.println(size1);
+
         for (int i = 1; i <= size1; i++) {
+
             Document oldDiv = oldPDFChapters.get(i);
             Document newDiv = newPDFChapters.get(i);
-            String[] tags = new String[]{"html", "div", "section", "code", "a", "em", "span", "strong", "ol"
+           /* String[] tags = new String[]{"html", "div", "section", "code", "a", "em", "span", "strong", "ol"
                     , "li", "table", "tbody", "tr", "td", "dl", "dt", "dd", "ul"};
             try {
                 for (String tag : tags) {
@@ -201,7 +203,8 @@ public class NormalConvert {
                         }
                     } catch (NullPointerException ignore) {
                     }
-                }
+                }*/
+            try {
                 try {
                     int oldSize = oldDiv.body().getAllElements().size();
                     int newSize = newDiv.body().getAllElements().size();
@@ -218,8 +221,8 @@ public class NormalConvert {
                                     difference = Jsoup.parse(newDiv2.html());
                                 }
                             } else {
-                                Document removed = editDiffChapter(Jsoup.parse(oldDiv2.html()), "removed");
-                                Document created = editDiffChapter(Jsoup.parse(newDiv2.html()), "created");
+                                Document removed = editDiffText(Jsoup.parse(oldDiv2.html()), "removed");
+                                Document created = editDiffText(Jsoup.parse(newDiv2.html()), "created");
                                 if (difference != null) {
                                     difference = Jsoup.parse(difference.html() + "<p>\n</p>" + removed.html() +
                                             "<p>\n</p>" + created.html() + "<p>\n</p>");
@@ -230,7 +233,7 @@ public class NormalConvert {
                         } catch (IndexOutOfBoundsException ignore) {
                             try {
                                 Element newDiv2 = newDiv.body().getAllElements().get(text);
-                                Document created = editDiffChapter(Jsoup.parse(newDiv2.html()), "created");
+                                Document created = editDiffText(Jsoup.parse(newDiv2.html()), "created");
                                 if (difference != null) {
                                     difference = Jsoup.parse(difference.html() + "<p>\n</p>" + created.html() + "<p>\n</p>");
                                 } else {
@@ -238,7 +241,7 @@ public class NormalConvert {
                                 }
                             } catch (IndexOutOfBoundsException ignore2) {
                                 Element oldDiv2 = oldDiv.body().getAllElements().get(text);
-                                Document removed = editDiffChapter(Jsoup.parse(oldDiv2.html()), "removed");
+                                Document removed = editDiffText(Jsoup.parse(oldDiv2.html()), "removed");
                                 if (difference != null) {
                                     difference = Jsoup.parse(difference.html() + "<p>\n</p>" + removed.html() + "<p>\n</p>");
                                 } else {
@@ -250,17 +253,17 @@ public class NormalConvert {
                 } catch (NullPointerException ignore) {
                     try {
                         oldDiv.getAllElements();
-                        oldDiv = editDiffChapter(oldDiv, "removed");
+                        oldDiv = editDiffText(oldDiv, "removed");
                         difference = Jsoup.parse(oldDiv.html());
                     } catch (NullPointerException ignore1) {
                         if(newDiv != null) {
-                            newDiv = editDiffChapter(newDiv, "created");
+                            newDiv = editDiffText(newDiv, "created");
                             difference = Jsoup.parse(newDiv.html());
                         }
                     }
                 }
                 if(difference != null) {
-                    HTMLDownloader.createFile(tempPath + "/difference" + i + ".html", difference.html());
+                    Connector.createFile(tempPath + "/difference" + i + ".html", difference.html());
                     difference = null;
                 }
 
@@ -272,11 +275,11 @@ public class NormalConvert {
 
     //end of compare system, diff creation
     public void createDiff(String tempPath, String originPath) {
-        System.out.println("Creating diff from temporary files");
-        HTMLLoader HTMLLoader = new HTMLLoader();
+        System.out.println("Creating diff from temporary IO");
+        Loader Loader = new Loader();
 
-        HashMap<Integer, Document> diffChapter = HTMLLoader.loadTemporaryChapters(tempPath);
-        HashMap<Integer, String> diffChapterName = HTMLLoader.showDiffChapterNames(tempPath);
+        HashMap<Integer, Document> diffChapter = Loader.loadTemporaryChapters(tempPath);
+        HashMap<Integer, String> diffChapterName = Loader.showDiffChapterNames(tempPath);
         Document document = null;
 
         for (int i : diffChapter.keySet()) {
@@ -284,9 +287,9 @@ public class NormalConvert {
             String name = diffChapterName.get(i);
             if (name.equals("removed") || name.equals("created")) {
                 if (document != null) {
-                    document = Jsoup.parse(document.html() + editDiffChapter(doc, name).html());
+                    document = Jsoup.parse(document.html() + editDiffText(doc, name).html());
                 } else {
-                    document = Jsoup.parse(editDiffChapter(doc, name).html());
+                    document = Jsoup.parse(editDiffText(doc, name).html());
                 }
             } else {
                 if (document != null) {
@@ -297,7 +300,7 @@ public class NormalConvert {
             }
         }
         try {
-            HTMLDownloader.createFile(originPath, Objects.requireNonNull(document).html());
+            Connector.createFile(originPath, Objects.requireNonNull(document).html());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -305,7 +308,7 @@ public class NormalConvert {
     }
 
     //creates colored changes
-    private Document editDiffChapter(Document diffChapter, String type) {
+    private Document editDiffText(Document diffChapter, String type) {
         switch (type) {
             case "removed":
                 for (Element edited : diffChapter.select("body")) {
@@ -320,6 +323,14 @@ public class NormalConvert {
                     String html = edited.html();
                     edited.remove();
                     diffChapter.append("<font color='green'>" + html + "</font>");
+                }
+                break;
+
+            case "tag":
+                for (Element edited : diffChapter.select("body")) {
+                    String html = edited.html();
+                    edited.remove();
+                    diffChapter.append("<font color='orange'>" + html + "</font>");
                 }
                 break;
         }
@@ -337,7 +348,7 @@ public class NormalConvert {
             for (int i : keys) {
                 if (i > oldPDFChapters.size()) {
                     try {
-                        HTMLDownloader.createFile(tempPath + "created" + i + ".html", newPDFChapters.get(i).html());
+                        Connector.createFile(tempPath + "created" + i + ".html", newPDFChapters.get(i).html());
                         newPDFChapters.remove(i);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -349,7 +360,7 @@ public class NormalConvert {
             for (int i : keys) {
                 if (i > newPDFChapters.size()) {
                     try {
-                        HTMLDownloader.createFile(tempPath + "removed" + i + ".html", oldPDFChapters.get(i).html());
+                        Connector.createFile(tempPath + "removed" + i + ".html", oldPDFChapters.get(i).html());
                         oldPDFChapters.remove(i);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -368,7 +379,7 @@ public class NormalConvert {
 
     public void deleteFile(String tempPath) {
         if (canDestroy) {
-            System.out.println("Deleting temp files");
+            System.out.println("Deleting temp IO");
             File tempFiles = new File(tempPath);
             try {
                 FileUtils.deleteDirectory(tempFiles);
@@ -378,7 +389,7 @@ public class NormalConvert {
         }
     }
 
-    public void setHTMLDownloader(org.pawlost.work.pdf.files.HTMLDownloader HTMLDownloader) {
-        this.HTMLDownloader = HTMLDownloader;
+    public void setConnector(Connector connector) {
+        this.Connector = connector;
     }
 }

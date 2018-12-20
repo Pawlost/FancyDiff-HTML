@@ -14,33 +14,33 @@
     along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
     */
 
-package org.pawlost.work.pdf.files;
+package org.pawlost.work.html.IO;
 
 import org.apache.commons.io.FileUtils;
 import org.jsoup.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.pawlost.work.pdf.core.NormalConvert;
+import org.pawlost.work.html.core.NormalConvert;
 
 import java.io.File;
 import java.io.IOException;
 
 import java.util.ArrayList;
 
-public class HTMLDownloader {
+public class Connector {
 
     private final static String oldChapter = "/oldChapters/";
     private final static String newChapter = "/newChapters/";
 
-    private HTMLLoader HTMLLoader;
+    private Loader Loader;
     private String tempPath;
     private String file;
     private String r_id;
     private String originPath;
     private String chapterTitle;
 
-    public HTMLDownloader(String file, String originPath, String tempID, String r_id) {
-        HTMLLoader = new HTMLLoader();
+    public Connector(String file, String originPath, String tempID, String r_id) {
+        Loader = new Loader();
         tempPath = NormalConvert.TEMPORARY_PATH + tempID;
         this.originPath = originPath;
         this.file = originPath + "/" + file;
@@ -68,7 +68,7 @@ public class HTMLDownloader {
     }
 
     public void oldTemp (String previousBulk) {
-        Document oldPDF = HTMLLoader.loadOriginalChapters(originPath + previousBulk + "/.htms/");
+        Document oldPDF = Loader.loadOriginalChapters(originPath + previousBulk + "/.htms/");
         File tempFiles = new File(tempPath + oldChapter);
         tempFiles.mkdirs();
         tempChapters(tempFiles.getAbsolutePath(), oldPDF.getAllElements());
@@ -85,7 +85,7 @@ public class HTMLDownloader {
     private Document downloadHTML() {
         Document rawPdf = null;
         try {
-            ArrayList<String> links = HTMLLoader.loadFile(file);
+            ArrayList<String> links = Loader.loadFile(file);
             for (String s : links) {
 
                 try {

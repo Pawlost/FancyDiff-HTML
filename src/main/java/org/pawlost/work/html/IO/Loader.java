@@ -14,7 +14,7 @@
     along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
     */
 
-package org.pawlost.work.pdf.files;
+package org.pawlost.work.html.IO;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HTMLLoader {
+public class Loader {
 
     public ArrayList<String> loadFile(String fileName) throws IOException {
         ArrayList<String> loadedText = new ArrayList<>();
@@ -63,14 +63,14 @@ public class HTMLLoader {
                 }
             }
         }catch (NullPointerException e){
-            System.out.println("HTML file does not exist or there are no files inside");
+            System.out.println("HTML file does not exist or there are no IO inside");
             e.printStackTrace();
         }
         return null;
     }
 
     public HashMap<Integer, Document> loadTemporaryChapters(String folderPath) {
-        HashMap<Integer, Document> clearPdfs = new HashMap<>();
+        HashMap<Integer, Document> clearHtmls = new HashMap<>();
         StringBuilder builder = new StringBuilder();
         System.out.println("Loading file from location: " + folderPath);
         try {
@@ -84,20 +84,20 @@ public class HTMLLoader {
                     if (m.find()) {
                         int pageNumber = Integer.parseInt(m.group());
                         Document document = Jsoup.parse(builder.toString());
-                        clearPdfs.put(pageNumber, document);
+                        clearHtmls.put(pageNumber, document);
                         builder.setLength(0);
                     }
                 }
             }
         } catch (NullPointerException e) {
-            System.out.println("HTML file does not exist or there are no files inside");
+            System.out.println("HTML file does not exist or there are no IO inside");
             e.printStackTrace();
         } catch (IOException e) {
             System.out.println("PDF file didnt load");
             e.printStackTrace();
         }
-        System.out.println("files pushed to compare\n");
-        return (HashMap<Integer, Document>) clearPdfs.clone();
+        System.out.println("IO pushed to compare\n");
+        return (HashMap<Integer, Document>) clearHtmls.clone();
     }
 
     public HashMap<Integer, String> showDiffChapterNames(String folderPath){
@@ -117,7 +117,7 @@ public class HTMLLoader {
                 }
             }
         }catch (NullPointerException e){
-            System.out.println("HTML file does not exist or there are no files inside");
+            System.out.println("HTML file does not exist or there are no IO inside");
             e.printStackTrace();
         }
         System.out.println("Names pushed to compare\n");
