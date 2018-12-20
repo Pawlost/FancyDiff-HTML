@@ -1,0 +1,31 @@
+package org.pawlost.work.html.elements;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+public class HighterElement extends LesserElement {
+
+    public HighterElement(Document diff) {
+        super(diff);
+    }
+
+    public void createMultiDifference(Element newElement, int childIndex) {
+        Element help = mainElement.clone();
+        mainElement = mainElement.parent();
+        mainElement.child(childIndex).remove();
+        String text = "<" + help.tagName() + ">" + help.text() + "</" + help.tagName() + ">";
+        appendChange(text);
+        if (!newElement.ownText().isEmpty()) {
+            mainElement.child(mainElement.children().size() - 1).append("<font class='FancyDiff' color='green'><" + newElement.tagName() + ">"
+                    + newElement.text() + "</" + newElement.tagName() + "></font>");
+        }
+    }
+
+    public void createMultiDifference(int childIndex) {
+        Element help = mainElement.clone();
+        mainElement = mainElement.parent();
+        mainElement.child(childIndex).remove();
+        String text = "<" + help.tagName() + ">" + help.toString() + "</" + help.tagName() + ">";
+        appendChange(text);
+    }
+}
