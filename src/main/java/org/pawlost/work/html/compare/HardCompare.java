@@ -17,43 +17,39 @@
 package org.pawlost.work.html.compare;
 
 import org.jsoup.nodes.Document;
-import org.pawlost.work.html.IO.Connector;
+import org.pawlost.work.html.elements.WholeElement;
 
-import java.io.File;
 import java.util.HashMap;
 
 //hard compare, compares whole pages
 public class HardCompare implements Compare{
-    public HardCompare() {
 
+    private WholeElement chapters;
+
+    public HardCompare(WholeElement chapters) {
+        this.chapters = chapters;
     }
 
     @Override
-    public void start() {
+    public WholeElement start() {
             System.out.println("Starting Hard Compare");
-            int size = (oldPDFChapters.size() <= newPDFChapters.size() ? oldPDFChapters.size() : newPDFChapters.size());
-            File dir = new File(tempFolder);
-            dir.mkdirs();
-            for (int i = 1; i <= size; i++) {
-                String htmlOldString = oldPDFChapters.get(i).html();
-                String htmlNewString = newPDFChapters.get(i).html();
+
+            for (int i = 0; i <= chapters.chaptersSize(); i++) {
+                String htmlOldString = chapters.getOldDocument().html();
+                String htmlNewString = chapters.getNewDocument().html();
 
                 htmlNewString = htmlNewString.replace(" ", "");
                 htmlOldString = htmlOldString.replace(" ", "");
 
                 if (htmlNewString.equals(htmlOldString)) {
-                    Connector.createFile(tempFolder + "same" + i + ".html", newPDFChapters.get(i).html());
-                    oldPDFChapters.remove(i);
-                    newPDFChapters.remove(i);
+                    chapters.removeNewChapters(i);
+                    chapters.removeOldChapters(i);
                 }
             }
-            HashMap<String, HashMap<Integer, Document>> returnHashMap = new HashMap<>();
-
-            returnHashMap.put("old", oldPDFChapters);
-            returnHashMap.put("new", newPDFChapters);
 
             System.out.println("Hard compare done");
-            System.out.println("Chapters remain to compare: " + oldPDFChapters.size() + " old chapter and " + newPDFChapters.size()
+            System.out.println("Chapters remain to compare: " + chapters.getOldChapters().size() + " old chapter and " + chapters.getNewChapters().size()
                     + " new chapter \n");
+        return chapters;
     }
 }

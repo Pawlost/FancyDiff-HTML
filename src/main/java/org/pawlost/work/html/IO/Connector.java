@@ -20,6 +20,7 @@ import org.jsoup.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.pawlost.work.html.core.NormalConvert;
+import org.pawlost.work.html.elements.WholeElement;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,31 +48,15 @@ public class Connector {
         this.r_id = r_id;
     }
 
-    public void newTemp(String bulk) throws IOException {
-        Document rawHtml = downloadHTML();
-        if (rawHtml != null) {
-            Elements html = rawHtml.select(NormalConvert.DOC_WRAPPER_ID);
-
-            chapterTitle = rawHtml.title().replaceAll(" ", "_");
-
-            File tempFiles = new File(tempPath + newChapter);
-            File path = new File(originPath + "/" + bulk);
-
-            tempFiles.mkdirs();
-            path.mkdirs();
-            tempChapters(tempFiles.getAbsolutePath(), html);
-            newHTMLFile(path, html.html());
-
-        } else {
-            System.out.println("Wrong file downloads");
+    public WholeElement getElement(String previousBulk){
+        Document webDocument = downloadHTML();
+        Document bulkDocument = Loader.loadOldChapters(originPath + previousBulk);
+        if (webDocument != null && bulkDocument != null){
+            return new WholeElement(webDocument, bulkDocument);
+        }else{
+            System.out.println("Documents not found");
         }
-    }
-
-    public void oldTemp (String previousBulk) {
-        Document oldPDF = Loader.loadOriginalChapters(originPath + previousBulk + "/.htms/");
-        File tempFiles = new File(tempPath + oldChapter);
-        tempFiles.mkdirs();
-        tempChapters(tempFiles.getAbsolutePath(), oldPDF.getAllElements());
+        return null;
     }
 
     public void newHTMLFile(File path, String html) throws IOException{
@@ -83,14 +68,14 @@ public class Connector {
     }
 
     private Document downloadHTML() {
-        Document rawPdf = null;
+        Document rawHTML = null;
         try {
             ArrayList<String> links = Loader.loadFile(file);
             for (String s : links) {
 
                 try {
                     System.out.println("Downloading file from " + s);
-                    rawPdf = Jsoup.connect(s).get();
+                    rawHTML = Jsoup.connect(s).get();
                     System.out.println("File downloaded" + "\n");
 
                 } catch (IllegalArgumentException e) {
@@ -101,7 +86,7 @@ public class Connector {
             System.out.println("Wrong file or unfunctional internet");
             e.printStackTrace();
         }
-        return rawPdf.clone();
+        return rawHTML.clone();
     }
 
     public void tempChapters(String absolutePath, Elements rawPdf) {

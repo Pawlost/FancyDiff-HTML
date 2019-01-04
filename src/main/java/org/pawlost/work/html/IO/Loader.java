@@ -17,6 +17,7 @@ package org.pawlost.work.html.IO;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.pawlost.work.html.elements.LesserElement;
 import org.pawlost.work.html.elements.WholeElement;
 
 import java.awt.image.AreaAveragingScaleFilter;
@@ -39,21 +40,21 @@ public class Loader {
         return (ArrayList<String>) loadedText.clone();
     }
 
-    public Document loadOriginalChapters(String folderPath) {
+    public Document loadOldChapters(String folderPath) {
         System.out.println("Loading file from location: "+folderPath);
         try {
             File folder = new File(folderPath);
-            File pdf = null;
+            File html = null;
             for (File file : Objects.requireNonNull(folder.listFiles())) {
                 if (file != null && !file.isDirectory()) {
-                    pdf = file;
+                    html = file;
                 }
             }
 
-            if (pdf != null) {
+            if (html != null) {
                 try {
                     StringBuilder builder = new StringBuilder();
-                    for (String s : loadFile(pdf.getPath())) {
+                    for (String s : loadFile(html.getPath())) {
                         builder.append(s);
                     }
                     System.out.println("File loaded and saved \n");
@@ -70,12 +71,16 @@ public class Loader {
         return null;
     }
 
-    public WholeElement loadTemporaryChapters(String folderPath) {
-        WholeElement element = new WholeElement();
+    public void loadTemporaryChapters (WholeElement element) {
+        loadElement(element.getOldPath(), element.getOldChapters());
+        loadElement(element.getNewPath(), element.getNewChapters());
+    }
 
+    private void loadElement(String folderPath, ArrayList<LesserElement> elementArrayList){
 
         StringBuilder builder = new StringBuilder();
         System.out.println("Loading file from location: " + folderPath);
+
         try {
             File folder = new File(folderPath);
             for (File file : Objects.requireNonNull(folder.listFiles())) {
@@ -83,11 +88,12 @@ public class Loader {
                     for (String s : loadFile(file.getPath())) {
                         builder.append(s);
                     }
+
                     Matcher m = Pattern.compile("[0-9]+").matcher(file.getName());
                     if (m.find()) {
                         int pageNumber = Integer.parseInt(m.group());
                         Document document = Jsoup.parse(builder.toString());
-                        clearHtmls.put(pageNumber, document);
+                        elementArrayList.set(pageNumber, new LesserElement(document));
                         builder.setLength(0);
                     }
                 }
@@ -96,11 +102,10 @@ public class Loader {
             System.out.println("HTML file does not exist or there are no IO inside");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("PDF file didnt load");
+            System.out.println("HTML file didnt load");
             e.printStackTrace();
         }
         System.out.println("IO pushed to compare\n");
-        return (HashMap<Integer, Document>) clearHtmls.clone();
     }
 
     public HashMap<Integer, String> showDiffChapterNames(String folderPath){

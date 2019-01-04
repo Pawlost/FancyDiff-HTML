@@ -23,6 +23,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.pawlost.work.html.IO.Loader;
 import org.pawlost.work.html.IO.Connector;
+import org.pawlost.work.html.compare.HardCompare;
+import org.pawlost.work.html.compare.SoftCompare;
+import org.pawlost.work.html.elements.WholeElement;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,12 +37,11 @@ public class NormalConvert {
     public static final String TEMPORARY_PATH = "temp/";
     public static final String DOC_WRAPPER_ID = "div.doc-wrapper";
     public static final String DOC_CHAPTER_ID = "section.chapter";
+
     private HashMap<String, String> information = new HashMap<>();
     private Connector Connector;
+    private WholeElement element;
     private boolean canDestroy = true;
-
-    public NormalConvert() {
-    }
 
     public NormalConvert(String[] args) {
         try {
@@ -52,39 +54,33 @@ public class NormalConvert {
                     Connector = new Connector(information.get("file"), information.get("path"),
                             information.get("bulk"), information.get("r_id"));
 
-                    download(information.get("bulk"), information.get("p_bulk"));
+                    element = Connector.getElement(information.get("p_bulk"));
+
 
                     String originDiffPath = information.get("path") + information.get("bulk") + "/comparison/";
                     File originDiffFile = new File(originDiffPath);
                     originDiffFile.mkdirs();
 
-                    HashMap<Integer, Document> oldPDFChapters = load(Connector.getTemporaryPathOld());
-                    HashMap<Integer, Document> newPDFChapters = load(Connector.getTemporaryPathNew());
-
                     String tempDiffPath = Connector.getTemporaryPath() + "/diffChapters/";
 
-                    HashMap<String, HashMap<Integer, Document>> comparedSources =
-                            hardCompare((HashMap<Integer, Document>) oldPDFChapters.clone(), (HashMap<Integer,
-                                    Document>) newPDFChapters.clone(), tempDiffPath);
+                    HardCompare hardCompare = new HardCompare(element);
+                    element = hardCompare.start();
 
-                    comparedSources = normalCompare(comparedSources, tempDiffPath);
-
-                    if (comparedSources.get("old").size() != 0 && comparedSources.get("new").size() != 0) {
-                        softCompare(comparedSources, tempDiffPath);
+                    if (element.getNewChapters().size() != 0 && element.getOldChapters().size() != 0) {
+                        SoftCompare softCompare = new SoftCompare(element);
+                        element = softCompare.start();
                     }
 
                     createDiff(tempDiffPath, originDiffFile.getAbsolutePath() + "/" + Connector.getChapterTitle()
                             + "-DIFF.html");
 
-                    deleteFile(Connector.getTemporaryPath());
+                    deleteTempFile(NormalConvert.TEMPORARY_PATH);
                 }
             } else {
                 System.out.println("Write all neccesary arguments or type --help to see correct order");
             }
         } catch (NullPointerException e) {
             System.out.println("Write correct parameters or type --help to see arguments");
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -128,23 +124,13 @@ public class NormalConvert {
         return true;
     }
 
-    public void download(String bulk, String previousBulk) throws IOException {
-        Connector.newTemp(bulk);
-        Connector.oldTemp(previousBulk);
-    }
-
-    public HashMap<Integer, Document> load(String tempFolder) {
-        Loader Loader = new Loader();
-        return (HashMap<Integer, Document>) Loader.loadTemporaryChapters(tempFolder).clone();
-    }
-
     //end of compare system, diff creation
     public void createDiff(String tempPath, String originPath) {
         System.out.println("Creating diff from temporary IO");
         Loader Loader = new Loader();
 
-        HashMap<Integer, Document> diffChapter = Loader.loadTemporaryChapters(tempPath);
-        HashMap<Integer, String> diffChapterName = Loader.showDiffChapterNames(tempPath);
+       // HashMap<Integer, Document> diffChapter = Loader.loadTemporaryChapters(tempPath);
+      //  HashMap<Integer, String> diffChapterName = Loader.showDiffChapterNames(tempPath);
         Document document = null;
 
         for (int i : diffChapter.keySet()) {
@@ -202,7 +188,7 @@ public class NormalConvert {
         return diffChapter.clone();
     }
 
-    public void deleteFile(String tempPath) {
+    public void deleteTempFile(String tempPath) {
         if (canDestroy) {
             System.out.println("Deleting temp Chapters");
             File tempFiles = new File(tempPath);
@@ -212,9 +198,5 @@ public class NormalConvert {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void setConnector(Connector connector) {
-        this.Connector = connector;
     }
 }

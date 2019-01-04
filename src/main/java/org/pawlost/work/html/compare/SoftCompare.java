@@ -23,35 +23,28 @@ import org.jsoup.nodes.Element;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+
 import org.pawlost.work.html.elements.*;
 
 public class SoftCompare implements Compare {
-    private int chaptersSize;
-    private HashMap<Integer, Document> oldHTMLChapters;
-    private HashMap<Integer, Document> newHTMLChapters;
-    private String tempPath;
+    private WholeElement chapters;
     private Document difference;
 
-    public SoftCompare(HashMap<Integer, Document> oldHTMLChapters, HashMap<Integer, Document> newHTMLChapters,
-                       String tempPath) {
+    public SoftCompare(WholeElement chapters) {
         difference = Jsoup.parse("");
-        this.tempPath = tempPath;
-        this.oldHTMLChapters = oldHTMLChapters;
-        this.newHTMLChapters = newHTMLChapters;
-        chaptersSize = (oldHTMLChapters.size() <= newHTMLChapters.size() ? newHTMLChapters.size() : oldHTMLChapters.size());
+        this.chapters = chapters;
     }
 
     //argorithm itself, frontend of resources
-    public void start(){
+    public WholeElement start(){
 
         System.out.println("Starting soft compare");
 
         //Dividing to chapters
-        for (int i = 1; i <= chaptersSize; i++) {
+        for (int i = 1; i <= chapters.chaptersSize(); i++) {
 
-            HighterElement hightE = new HighterElement(oldHTMLChapters.get(i).clone());
-            LesserElement lessE = new LesserElement(newHTMLChapters.get(i).clone());
+            HighterElement hightE = new HighterElement((Document) chapters.getOldChapters().get(i).clone());
+            LesserElement lessE = new LesserElement((Document) chapters.getNewChapters().get(i).clone());
 
             //check if there is correct number of main elements
             if (lessE.getMainESize() == 0) {
@@ -328,14 +321,10 @@ public class SoftCompare implements Compare {
                     hightE.remove(0);
                 }
             }
-        }
-
-        try {
-            createFile(tempPath + "/difference.html", difference.html());
-        } catch (IOException e) {
-            e.printStackTrace();
+            chapters
         }
         System.out.println("Soft compare done");
+        return chapters;
     }
 
     //Put html tags in correct order (From middle position reverse tags)

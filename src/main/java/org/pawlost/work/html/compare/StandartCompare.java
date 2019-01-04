@@ -13,18 +13,23 @@
     You should have received a copy of the GNU General Public License
     along with FancyDiff-HTML.  If not, see <https://www.gnu.org/licenses/>.
     */
-package org.pawlost.work.html.core;
 
-public class Convert {
+package org.pawlost.work.html.compare;
 
-    //Created for future options
-    public static void main(String[] args) {
-        for (String arg : args) {
-            switch (arg) {
-                default:
-                    new NormalConvert(args);
-                    break;
-            }
-        }
+import org.pawlost.work.html.elements.WholeElement;
+
+//Removes additional chapters
+public class StandartCompare implements Compare {
+
+    private WholeElement chapters;
+    private String tempPath;
+
+    public StandartCompare(WholeElement chapters, String path){
+        this.chapters = chapters;
+        tempPath = path;
+    }
+
+    public WholeElement start() {
+        return chapters;
     }
 }

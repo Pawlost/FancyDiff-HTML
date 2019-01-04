@@ -15,22 +15,65 @@
     */
 package org.pawlost.work.html.elements;
 
+import org.jsoup.nodes.Document;
+
 import java.util.ArrayList;
 
 public class WholeElement {
-    private ArrayList<LesserElement> oldChapters;
-    private ArrayList<HighterElement> newChapters;
+    String oldPath;
+    String newPath;
 
-    public WholeElement (){
+    private Document oldDocument;
+    private Document newDocument;
+
+    private ArrayList<LesserElement> oldChapters;
+    private ArrayList<LesserElement> newChapters;
+
+    private ArrayList<LesserElement> compared;
+
+    public WholeElement (Document oldDocument, Document newDocument){
+
+        this.oldDocument = oldDocument;
+        this.newDocument = newDocument;
+
         oldChapters = new ArrayList<>();
         newChapters = new ArrayList<>();
+        compared = new ArrayList<>();
     }
 
-    public void addOldChapter(int position, LesserElement oldChapter){
-        oldChapters.set(position, oldChapter);
+    public int chaptersSize (){
+        return getNewChapters().size() <= getNewChapters().size() ?
+                getNewChapters().size() : getOldChapters().size();
     }
 
-    public void addNewChapters(int position, HighterElement newChapter){
-        newChapters.set(position, newChapter);
+    public void removeOldChapters(int index){
+        oldChapters.remove(index);
+    }
+    public void removeNewChapters(int index){
+        newChapters.remove(index);
+    }
+
+    public ArrayList<LesserElement> getNewChapters() {
+        return newChapters;
+    }
+
+    public ArrayList<LesserElement> getOldChapters() {
+        return oldChapters;
+    }
+
+    public Document getNewDocument() {
+        return newDocument;
+    }
+
+    public Document getOldDocument() {
+        return oldDocument;
+    }
+
+    public String getOldPath(){
+        return oldPath;
+    }
+
+    public String getNewPath(){
+        return newPath;
     }
 }
