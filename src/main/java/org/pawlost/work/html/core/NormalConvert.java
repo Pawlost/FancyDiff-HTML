@@ -28,6 +28,7 @@ import java.io.IOException;
 
 import java.util.*;
 
+//Main class for starting compare, checking arguments and finishing compare
 public class NormalConvert {
 
     public static final String DOC_WRAPPER_ID = "div.doc-wrapper";

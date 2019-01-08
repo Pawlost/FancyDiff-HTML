@@ -18,6 +18,7 @@ package org.pawlost.work.html.elements;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+//Element for new documents, carries functions for editing Document, which will be final compare
 public class HighterElement extends LesserElement {
 
     public HighterElement(Document diff) {

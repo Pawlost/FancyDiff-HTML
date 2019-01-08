@@ -26,6 +26,8 @@ import java.util.ArrayList;
 
 import org.pawlost.work.html.elements.*;
 
+
+//Algorithm for controling changes
 public class SoftCompare implements Compare {
     private WholeElement chapters;
     private Document difference;

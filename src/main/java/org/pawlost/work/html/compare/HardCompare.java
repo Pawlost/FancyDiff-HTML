@@ -18,7 +18,7 @@ package org.pawlost.work.html.compare;
 
 import org.pawlost.work.html.elements.WholeElement;
 
-//hard compare, compares whole pages
+//hard compare compares whole documents
 public class HardCompare implements Compare{
 
     private WholeElement chapters;

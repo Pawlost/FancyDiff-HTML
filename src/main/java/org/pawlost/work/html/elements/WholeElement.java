@@ -23,6 +23,7 @@ import org.pawlost.work.html.core.NormalConvert;
 
 import java.util.ArrayList;
 
+//Caries all neccesary variables
 public class WholeElement {
 
     private ArrayList<Document> oldChapters;

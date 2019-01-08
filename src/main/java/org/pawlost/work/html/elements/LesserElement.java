@@ -20,6 +20,7 @@ import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
 
+//Element for old documents, carries all information about Documents for compare
  public class LesserElement extends ArrayList<ArrayList<Element>> {
 
      public ArrayList<Element> children;

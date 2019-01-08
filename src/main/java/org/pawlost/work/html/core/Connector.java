@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
-//Downloads document from internet
+//Downloads document from internet, works with files as IO
 public class Connector {
 
     private String file;
