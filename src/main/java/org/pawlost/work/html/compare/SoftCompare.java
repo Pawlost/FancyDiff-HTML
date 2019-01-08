@@ -43,8 +43,8 @@ public class SoftCompare implements Compare {
         //Dividing to chapters
         for (int i = 1; i <= chapters.chaptersSize(); i++) {
 
-            HighterElement hightE = new HighterElement((Document) chapters.getOldChapters().get(i).clone());
-            LesserElement lessE = new LesserElement((Document) chapters.getNewChapters().get(i).clone());
+            HighterElement hightE = new HighterElement(chapters.getOldChapters().get(i).clone());
+            LesserElement lessE = new LesserElement(chapters.getNewChapters().get(i).clone());
 
             //check if there is correct number of main elements
             if (lessE.getMainESize() == 0) {
@@ -321,7 +321,7 @@ public class SoftCompare implements Compare {
                     hightE.remove(0);
                 }
             }
-            chapters
+            chapters.addCompared(difference);
         }
         System.out.println("Soft compare done");
         return chapters;

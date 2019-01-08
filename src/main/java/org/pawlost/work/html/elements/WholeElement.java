@@ -15,35 +15,55 @@
     */
 package org.pawlost.work.html.elements;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.pawlost.work.html.core.NormalConvert;
 
 import java.util.ArrayList;
 
 public class WholeElement {
-    String oldPath;
-    String newPath;
 
-    private Document oldDocument;
-    private Document newDocument;
+    private ArrayList<Document> oldChapters;
+    private ArrayList<Document> newChapters;
 
-    private ArrayList<LesserElement> oldChapters;
-    private ArrayList<LesserElement> newChapters;
-
-    private ArrayList<LesserElement> compared;
+    private ArrayList<Document> compared;
 
     public WholeElement (Document oldDocument, Document newDocument){
-
-        this.oldDocument = oldDocument;
-        this.newDocument = newDocument;
-
         oldChapters = new ArrayList<>();
         newChapters = new ArrayList<>();
         compared = new ArrayList<>();
+
+        oldChapters = divideToChapters(oldDocument);
+        newChapters = divideToChapters(newDocument);
     }
 
     public int chaptersSize (){
         return getNewChapters().size() <= getNewChapters().size() ?
                 getNewChapters().size() : getOldChapters().size();
+    }
+
+    public Document createDifference(){
+        Document difference = Jsoup.parse("");
+        for (Document document : compared){
+            difference.append(document.html());
+        }
+        return difference;
+    }
+
+    private ArrayList<Document> divideToChapters(Document document){
+        ArrayList<Document> arrayElements = new ArrayList<>();
+        Elements elements = document.select(NormalConvert.DOC_WRAPPER_ID);
+        for(Element element : elements){
+            arrayElements.add(Jsoup.parse(element.html()));
+        }
+        return arrayElements;
+    }
+
+    public void addCompared(Document compared) {
+        this.compared.add(compared);
     }
 
     public void removeOldChapters(int index){
@@ -53,27 +73,12 @@ public class WholeElement {
         newChapters.remove(index);
     }
 
-    public ArrayList<LesserElement> getNewChapters() {
+    public ArrayList<Document> getNewChapters() {
         return newChapters;
     }
 
-    public ArrayList<LesserElement> getOldChapters() {
+    public ArrayList<Document> getOldChapters() {
         return oldChapters;
     }
 
-    public Document getNewDocument() {
-        return newDocument;
-    }
-
-    public Document getOldDocument() {
-        return oldDocument;
-    }
-
-    public String getOldPath(){
-        return oldPath;
-    }
-
-    public String getNewPath(){
-        return newPath;
-    }
 }

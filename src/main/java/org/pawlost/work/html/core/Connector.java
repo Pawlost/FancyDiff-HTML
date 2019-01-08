@@ -13,64 +13,47 @@
     You should have received a copy of the GNU General Public License
     along with FancyDiff-HTML.  If not, see <https://www.gnu.org/licenses/>.
     */
-package org.pawlost.work.html.IO;
+package org.pawlost.work.html.core;
 
 import org.apache.commons.io.FileUtils;
 import org.jsoup.*;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.pawlost.work.html.core.NormalConvert;
 import org.pawlost.work.html.elements.WholeElement;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 //Downloads document from internet
 public class Connector {
 
-    private final static String oldChapter = "/oldChapters/";
-    private final static String newChapter = "/newChapters/";
-
-    private Loader Loader;
-    private String tempPath;
     private String file;
-    private String r_id;
     private String originPath;
-    private String chapterTitle;
 
-    public Connector(String file, String originPath, String tempID, String r_id) {
-        Loader = new Loader();
-        tempPath = NormalConvert.TEMPORARY_PATH + tempID;
+    public Connector(String file, String originPath) {
         this.originPath = originPath;
         this.file = originPath + "/" + file;
-        this.r_id = r_id;
     }
 
-    public WholeElement getElement(String previousBulk){
+    public WholeElement getElement(String previousBulk) {
         Document webDocument = downloadHTML();
-        Document bulkDocument = Loader.loadOldChapters(originPath + previousBulk);
-        if (webDocument != null && bulkDocument != null){
+        Document bulkDocument = loadOldChapters(originPath + previousBulk);
+        if (webDocument != null && bulkDocument != null) {
             return new WholeElement(webDocument, bulkDocument);
-        }else{
+        } else {
             System.out.println("Documents not found");
         }
         return null;
     }
 
-    public void newHTMLFile(File path, String html) throws IOException{
-        createFile(path.getAbsolutePath() + "/" + chapterTitle + "-<" + r_id + ">.html", html);
-        System.out.println("File saved in " + path.getAbsolutePath() + "/" + chapterTitle + ".html \n");
-        path = new File(path.getAbsolutePath() + "/.oldone/");
-        path.mkdirs();
-        createFile(path.getAbsolutePath() + "/.oldone-" + chapterTitle + "-<" + r_id + ">.html", html);
-    }
-
     private Document downloadHTML() {
         Document rawHTML = null;
         try {
-            ArrayList<String> links = Loader.loadFile(file);
+            ArrayList<String> links = loadFile(file);
             for (String s : links) {
 
                 try {
@@ -89,40 +72,50 @@ public class Connector {
         return rawHTML.clone();
     }
 
-    public void tempChapters(String absolutePath, Elements rawPdf) {
-        Elements pdf= rawPdf.select(NormalConvert.DOC_CHAPTER_ID);
-        for (int i = 0; i < pdf.size(); i++) {
-            try {
-                String file = "/" + "chapter" + (i + 1) + ".html";
-                createFile(absolutePath + file, pdf.get(i).html());
-                System.out.println("File splited and temporary saved in " +
-                        absolutePath + file + "\n");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public static void createFile(String filePath, String text) throws IOException {
         File file = new File(filePath);
         FileUtils.writeStringToFile(file, text + "\n", "UTF-8");
     }
 
 
-    public String getTemporaryPathOld() {
-        return tempPath + oldChapter;
+    public ArrayList<String> loadFile(String fileName) throws IOException {
+        ArrayList<String> loadedText = new ArrayList<>();
+        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        String s;
+        while ((s = br.readLine()) != null) {
+            loadedText.add(s);
+        }
+        return (ArrayList<String>) loadedText.clone();
     }
 
-    public String getTemporaryPathNew() {
-        return tempPath + newChapter;
-    }
+    public Document loadOldChapters(String folderPath) {
+        System.out.println("Loading file from location: " + folderPath);
+        try {
+            File folder = new File(folderPath);
+            File html = null;
+            for (File file : Objects.requireNonNull(folder.listFiles())) {
+                if (file != null && !file.isDirectory()) {
+                    html = file;
+                }
+            }
 
-    public String getTemporaryPath() {
-        return tempPath;
-    }
-
-    public String getChapterTitle() {
-        return chapterTitle;
+            if (html != null) {
+                try {
+                    StringBuilder builder = new StringBuilder();
+                    for (String s : loadFile(html.getPath())) {
+                        builder.append(s);
+                    }
+                    System.out.println("File loaded and saved \n");
+                    return Jsoup.parse(builder.toString());
+                } catch (IOException e) {
+                    System.out.println("PDF file didnt load");
+                    e.printStackTrace();
+                }
+            }
+        } catch (NullPointerException e) {
+            System.out.println("HTML file does not exist or there are no IO inside");
+            e.printStackTrace();
+        }
+        return null;
     }
 }

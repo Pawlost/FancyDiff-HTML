@@ -35,8 +35,8 @@ public class HardCompare implements Compare{
             System.out.println("Starting Hard Compare");
 
             for (int i = 0; i <= chapters.chaptersSize(); i++) {
-                String htmlOldString = chapters.getOldDocument().html();
-                String htmlNewString = chapters.getNewDocument().html();
+                String htmlOldString = chapters.getOldChapters().get(i).html();
+                String htmlNewString = chapters.getNewChapters().get(i).html();
 
                 htmlNewString = htmlNewString.replace(" ", "");
                 htmlOldString = htmlOldString.replace(" ", "");

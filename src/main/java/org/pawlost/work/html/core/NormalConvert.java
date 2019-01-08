@@ -16,13 +16,9 @@
 
 package org.pawlost.work.html.core;
 
-import org.apache.commons.io.FileUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import org.jsoup.nodes.Element;
-import org.pawlost.work.html.IO.Loader;
-import org.pawlost.work.html.IO.Connector;
 import org.pawlost.work.html.compare.HardCompare;
 import org.pawlost.work.html.compare.SoftCompare;
 import org.pawlost.work.html.elements.WholeElement;
@@ -34,16 +30,12 @@ import java.util.*;
 
 public class NormalConvert {
 
-    public static final String TEMPORARY_PATH = "temp/";
     public static final String DOC_WRAPPER_ID = "div.doc-wrapper";
-    public static final String DOC_CHAPTER_ID = "section.chapter";
 
     private HashMap<String, String> information = new HashMap<>();
     private Connector Connector;
-    private WholeElement element;
-    private boolean canDestroy = true;
 
-    public NormalConvert(String[] args) {
+     NormalConvert(String[] args) {
         try {
             System.out.println("\nStarting program \n");
             if (checkArguments(args)) {
@@ -51,17 +43,14 @@ public class NormalConvert {
                 if (information.get("file") != null && information.get("r_id") != null && information.get("bulk") != null
                         && information.get("path") != null && information.get("p_bulk") != null) {
 
-                    Connector = new Connector(information.get("file"), information.get("path"),
-                            information.get("bulk"), information.get("r_id"));
+                    Connector = new Connector(information.get("file"), information.get("path"));
 
-                    element = Connector.getElement(information.get("p_bulk"));
+                    WholeElement element = Connector.getElement(information.get("p_bulk"));
 
 
                     String originDiffPath = information.get("path") + information.get("bulk") + "/comparison/";
                     File originDiffFile = new File(originDiffPath);
                     originDiffFile.mkdirs();
-
-                    String tempDiffPath = Connector.getTemporaryPath() + "/diffChapters/";
 
                     HardCompare hardCompare = new HardCompare(element);
                     element = hardCompare.start();
@@ -71,10 +60,7 @@ public class NormalConvert {
                         element = softCompare.start();
                     }
 
-                    createDiff(tempDiffPath, originDiffFile.getAbsolutePath() + "/" + Connector.getChapterTitle()
-                            + "-DIFF.html");
-
-                    deleteTempFile(NormalConvert.TEMPORARY_PATH);
+                    createDiff(originDiffFile.getAbsolutePath() + "/difference-DIFF.html", element);
                 }
             } else {
                 System.out.println("Write all neccesary arguments or type --help to see correct order");
@@ -85,7 +71,7 @@ public class NormalConvert {
         }
     }
 
-    public boolean checkArguments(String[] args) {
+    private boolean checkArguments(String[] args) {
         System.out.println("Checking arguments \n");
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
@@ -110,10 +96,6 @@ public class NormalConvert {
                     information.put("p_bulk", args[i + 1]);
                     break;
 
-                case "--tempFiles":
-                    canDestroy = false;
-                    break;
-
                 case "--help":
                     System.out.println("Place paramaters in correct order <--file name.txt --revision_id id --bulk name " +
                             "--path /path/ --previous_bulk name>, optional parameters [-- wrapper_id id, --download_only, " +
@@ -125,31 +107,11 @@ public class NormalConvert {
     }
 
     //end of compare system, diff creation
-    public void createDiff(String tempPath, String originPath) {
+    private void createDiff(String originPath, WholeElement element) {
         System.out.println("Creating diff from temporary IO");
-        Loader Loader = new Loader();
 
-       // HashMap<Integer, Document> diffChapter = Loader.loadTemporaryChapters(tempPath);
-      //  HashMap<Integer, String> diffChapterName = Loader.showDiffChapterNames(tempPath);
-        Document document = null;
+        Document document = element.createDifference();
 
-        for (int i : diffChapter.keySet()) {
-            Document doc = diffChapter.get(i);
-            String name = diffChapterName.get(i);
-            if (name.equals("removed") || name.equals("created")) {
-                if (document != null) {
-                    document = Jsoup.parse(document.html() + editDiffText(doc, name).html());
-                } else {
-                    document = Jsoup.parse(editDiffText(doc, name).html());
-                }
-            } else {
-                if (document != null) {
-                    document = Jsoup.parse(document.html() + doc.html());
-                } else {
-                    document = Jsoup.parse(doc.html());
-                }
-            }
-        }
         try {
             Connector.createFile(originPath, Objects.requireNonNull(document).html());
         } catch (IOException e) {
@@ -186,17 +148,5 @@ public class NormalConvert {
                 break;
         }
         return diffChapter.clone();
-    }
-
-    public void deleteTempFile(String tempPath) {
-        if (canDestroy) {
-            System.out.println("Deleting temp Chapters");
-            File tempFiles = new File(tempPath);
-            try {
-                FileUtils.deleteDirectory(tempFiles);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
