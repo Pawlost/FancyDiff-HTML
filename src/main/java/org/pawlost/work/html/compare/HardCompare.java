@@ -16,10 +16,7 @@
 
 package org.pawlost.work.html.compare;
 
-import org.jsoup.nodes.Document;
 import org.pawlost.work.html.elements.WholeElement;
-
-import java.util.HashMap;
 
 //hard compare, compares whole pages
 public class HardCompare implements Compare{

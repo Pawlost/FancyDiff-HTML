@@ -17,7 +17,6 @@ package org.pawlost.work.html.elements;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.DocumentType;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.pawlost.work.html.core.NormalConvert;
