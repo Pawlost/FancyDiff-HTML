@@ -1,11 +1,11 @@
-Dokumentace
+Documentation
 FancyDiff-HTML
 ================
 
 Content
 -----------
 
-* Desription
+* Description
 * Basic usage
 * Start 
 * Neccesary arguments and program start
@@ -16,7 +16,7 @@ Warning
 -----------
 Current version doesnt work
 
-Desription
+Description
 =============
 Main purpose of FancyDiff-HTML is to take saved HTML document from PC, download HTML document from internet, compare both documents and make a difference.
 

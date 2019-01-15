@@ -1,143 +1,51 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--This file is part of PDFConverter.
-
-PDFConverter is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-PDFConverter is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with PDFConverter.  If not, see <https://www.gnu.org/licenses/>.
--->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-<modelVersion>4.0.0</modelVersion>
-
-<artifactId>fancyHtml</artifactId>
-<version>0.28</version>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fancydiff</groupId>
+    <artifactId>fancydiff-html</artifactId>
+    <version>0.30</version>
 
 <name>FancyDiff-HTML</name>
-
-<!-- FIXME change it to the project's website -->
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
-  </properties>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
 
   <build>
       <plugins>
           <plugin>
-              <artifactId>maven-dependency-plugin</artifactId>
-              <executions>
-                  <execution>
-                      <phase>install</phase>
-                      <goals>
-                          <goal>copy-dependencies</goal>
-                      </goals>
-                      <configuration>
-                          <outputDirectory>${project.build.directory}</outputDirectory>
-                      </configuration>
-                  </execution>
-              </executions>
+              <artifactId>maven-clean-plugin</artifactId>
+              <version>3.1.0</version>
           </plugin>
 
           <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-jar-plugin</artifactId>
-              <version>3.0.2</version>
-              <configuration>
-                  <archive>
-                    <manifest>
-                        <addClasspath>true</addClasspath>
-                        <mainClass>org.pawlost.work.html.core.Convert</mainClass>
-              </manifest>
-            </archive>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.0.0</version>
-        </plugin>
-
-        <!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.7.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.20.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
-        </plugin>
-          <plugin>
-              <groupId>org.jetbrains.kotlin</groupId>
-              <artifactId>kotlin-maven-plugin</artifactId>
-              <version>${kotlin.version}</version>
-              <executions>
-                  <execution>
-                      <id>compile</id>
-                      <phase>compile</phase>
-                      <goals>
-                          <goal>compile</goal>
-                      </goals>
-                  </execution>
-                  <execution>
-                      <id>test-compile</id>
-                      <phase>test-compile</phase>
-                      <goals>
-                          <goal>test-compile</goal>
-                      </goals>
-                  </execution>
-              </executions>
-              <configuration>
-                  <jvmTarget>1.8</jvmTarget>
-              </configuration>
-          </plugin>
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>
-              <executions>
-                  <execution>
-                      <id>compile</id>
-                      <phase>compile</phase>
-                      <goals>
-                          <goal>compile</goal>
-                      </goals>
-                  </execution>
-                  <execution>
-                      <id>testCompile</id>
-                      <phase>test-compile</phase>
-                      <goals>
-                          <goal>testCompile</goal>
-                      </goals>
-                  </execution>
-              </executions>
+              <version>3.8.0</version>
+          </plugin>
+
+          <plugin>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>2.22.1</version>
+          </plugin>
+
+          <plugin>
+              <artifactId>maven-install-plugin</artifactId>
+              <version>2.5.2</version>
+          </plugin>
+
+          <plugin>
+              <artifactId>maven-deploy-plugin</artifactId>
+              <version>2.8.2</version>
           </plugin>
       </plugins>
   </build>
 
-  <description>Project to check PDF files</description>
-  <groupId>redhat.work.html</groupId>
+  <description>Project to make difference from HTML files</description>
 
   <dependencies>
   	<dependency>
@@ -146,35 +54,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   		<version>1.11.3</version>
   	</dependency>
       <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-nop</artifactId>
-          <version>1.7.25</version>
-      </dependency>
-      <dependency>
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-io</artifactId>
           <version>1.3.2</version>
-      </dependency>
-      <dependency>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-          <version>${kotlin.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-test</artifactId>
-          <version>${kotlin.version}</version>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-          <version>${kotlin.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-stdlib-jdk8</artifactId>
-          <version>${kotlin.version}</version>
       </dependency>
   </dependencies>
 </project>
